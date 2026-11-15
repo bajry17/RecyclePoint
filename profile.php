@@ -22,7 +22,7 @@
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
       </div>
       <div class="hero__info">
-        <h2 class="hero__name">Dudung <span class="badge">Pengrajin</span></h2>
+        <h2 class="hero__name">Dudung <span class="badge">Masyarakat</span></h2>
         <p class="hero__since">Bergabung Sejak Oktober 2026</p>
       </div>
       <button class="btn btn--orange" type="button">Keluar Akun</button>
@@ -62,6 +62,6 @@
       </aside>
     </div>
   </main>
-
+<script src="header/sidebar.js" defer></script>
 </body>
 </html>

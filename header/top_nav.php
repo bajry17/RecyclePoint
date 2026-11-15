@@ -8,14 +8,16 @@
       </a>
     </div>
     <div class="navbar__right">
-      <button class="icon-btn" aria-label="Pengaturan">
-        <img src="images/setting.png" width="75%" alt="">
-      </button>
+      <a class="brand" href="profile.php">
+        <img src="images/setting.png" width="60%" alt="">
+      </a>
       <button class="icon-btn" aria-label="Notifikasi">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/></svg>
       </button>
       <button class="user-chip" aria-label="Menu akun Dudung">
-        <span class="user-chip__avatar" aria-hidden="true">D</span>
+        <a class="brand" href="profile.php">
+          <span class="user-chip__avatar" aria-hidden="true">D</span>
+        </a>
         <span class="user-chip__name">Dudung</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
       </button>

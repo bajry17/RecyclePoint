@@ -54,6 +54,6 @@
       </div>
     </form>
   </main>
-
+<script src="header/sidebar.js" defer></script>
 </body>
 </html>

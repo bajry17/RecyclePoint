@@ -20,7 +20,6 @@ body {
   background: var(--bg);
 }
 
-/* ---------- Navbar ---------- */
 .navbar {
   display: flex;
   align-items: center;
@@ -90,6 +89,7 @@ body {
 
 /* ---------- Buttons ---------- */
 .btn {
+  text-decoration: none;
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 44px; padding: 0 24px;
   border: 0; border-radius: 8px;
@@ -129,7 +129,6 @@ body {
   transform: rotate(45deg);
 }
 
-/* ---------- Responsive ---------- */
 @media (max-width: 860px) {
   .layout { grid-template-columns: 1fr; }
 }
@@ -142,7 +141,6 @@ body {
   .hero .btn { width: 100%; }
 }
 
-/* ---------- Halaman Edit Profil ---------- */
 .bg-cream { background: #F6FCE8; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .btn--white { background: #fff; color: var(--ink); }
@@ -188,3 +186,65 @@ body {
   background-repeat: no-repeat; background-position: right 14px center;
 }
 .field select:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(244,123,46,.35); }
+
+.no-scroll { overflow: hidden; }
+.overlay {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(18, 41, 58, .5);
+  opacity: 0; transition: opacity .25s ease;
+}
+.overlay.show { opacity: 1; }
+
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 50;
+  width: 272px; max-width: 86vw;
+  display: flex; flex-direction: column;
+  padding: 16px 16px 20px;
+  background: var(--teal); color: #fff;
+  box-shadow: 4px 0 18px rgba(0,0,0,.25);
+  transform: translateX(-100%);
+  transition: transform .25s ease;
+  overflow-y: auto;
+}
+.sidebar.open { transform: translateX(0); }
+
+.sidebar__top { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+.sidebar__brand {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 54px; padding: 0 12px;
+  background: #fff; border-radius: 999px;
+  color: #1E4D2B; font-weight: 700; font-size: 16px; text-decoration: none;
+}
+.sidebar__close {
+  display: grid; place-items: center; flex: none;
+  width: 44px; height: 44px; border: 0; border-radius: 10px;
+  background: transparent; color: #fff; cursor: pointer;
+}
+.sidebar__close:hover { background: rgba(255,255,255,.14); }
+
+.sidebar__nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.sidebar__label { margin: 10px 8px 2px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #CFE2DF; }
+.sidebar__line { width: 100%; margin: 12px 0 0; border: 0; border-top: 1px solid rgba(255,255,255,.25); }
+
+.side-link {
+  display: flex; align-items: center; gap: 14px;
+  min-height: 46px; padding: 0 14px; border-radius: 10px;
+  color: #fff; text-decoration: none; font-size: 15px; font-weight: 500;
+}
+.side-link:hover { background: rgba(255,255,255,.12); }
+.side-link.active { background: rgba(255,255,255,.2); font-weight: 600; }
+
+.sidebar__bottom { margin-top: 20px; }
+.side-logout {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 46px; border-radius: 10px;
+  background: var(--red); color: #fff; text-decoration: none; font-weight: 600; font-size: 15px;
+}
+.side-logout:hover { background: #B80C0C; }
+.sidebar a:focus-visible, .sidebar button:focus-visible {
+  outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar, .overlay { transition: none; }
+}
