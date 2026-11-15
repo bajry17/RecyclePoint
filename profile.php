@@ -32,7 +32,7 @@
       <section class="card info" aria-labelledby="info-title">
         <div class="card__head">
           <h2 id="info-title">Informasi Pribadi</h2>
-          <a class="btn btn--orange btn--sm" href="edit_profile.html">Edit Profil</a>
+          <a class="btn btn--orange btn--sm" href="edit_profile.php">Edit Profil</a>
         </div>
         <dl class="fields">
           <div><dt>Nama Lengkap</dt><dd>Dudung Somat</dd></div>
