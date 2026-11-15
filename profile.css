@@ -1,0 +1,190 @@
+:root {
+  --teal: #2B5F5A;
+  --teal-dark: #1F4A46;
+  --orange: #F47B2E;
+  --orange-hover: #E36C20;
+  --green: #1F9D5C;
+  --red: #D40F0F;
+  --ink: #12293A;
+  --muted: #5B6B75;
+  --line: #E3E6E8;
+  --bg: #FFFFFF;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Poppins", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.navbar__left, .navbar__right { display: flex; align-items: center; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: 18px; }
+
+.icon-btn {
+  display: grid; place-items: center;
+  width: 44px; height: 44px;
+  border: 0; border-radius: 10px;
+  background: transparent; color: var(--ink); cursor: pointer;
+}
+.icon-btn:hover { background: #F0F3F2; }
+
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 0 10px 0 6px;
+  border: 0; border-radius: 999px;
+  background: transparent; color: var(--ink);
+  font: 600 14px "Poppins", sans-serif; cursor: pointer;
+}
+.user-chip:hover { background: #F0F3F2; }
+.user-chip__avatar {
+  display: grid; place-items: center;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--green); color: #fff; font-size: 14px;
+}
+
+/* ---------- Page ---------- */
+.page { max-width: 1120px; margin: 0 auto; padding: 28px 24px 56px; }
+.breadcrumb { font-size: 13px; color: var(--muted); }
+.page__title { margin: 4px 0 20px; font-size: 32px; font-weight: 700; }
+
+.card {
+  background: var(--teal);
+  color: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.18);
+}
+.card h2 { margin: 0; font-size: 18px; font-weight: 600; }
+
+/* ---------- Hero ---------- */
+.hero { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+.hero__avatar {
+  display: grid; place-items: center;
+  width: 88px; height: 88px; border-radius: 50%;
+  background: var(--green); border: 3px solid #fff; flex: none;
+}
+.hero__info { flex: 1; min-width: 200px; }
+.hero__name { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 22px !important; font-weight: 700 !important; }
+.badge {
+  padding: 3px 12px; border-radius: 999px;
+  background: var(--teal-dark); color: #fff;
+  font-size: 12px; font-weight: 500;
+}
+.hero__since { margin: 4px 0 0; font-size: 13px; color: #D5E5E2; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 24px;
+  border: 0; border-radius: 8px;
+  font: 600 15px "Poppins", sans-serif; cursor: pointer;
+}
+.btn--orange { background: var(--orange); color: var(--ink); }
+.btn--orange:hover { background: var(--orange-hover); }
+.btn--sm { min-height: 40px; padding: 0 18px; font-size: 14px; }
+.btn:focus-visible, .menu a:focus-visible, .icon-btn:focus-visible, .user-chip:focus-visible {
+  outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px var(--ink);
+}
+
+/* ---------- Layout ---------- */
+.layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.card__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
+
+.fields { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 32px; }
+.fields dt { font-size: 12px; color: #CFE2DF; }
+.fields dd { margin: 2px 0 0; font-size: 15px; font-weight: 500; overflow-wrap: anywhere; }
+.fields__full { grid-column: 1 / -1; }
+
+/* ---------- Pengaturan akun ---------- */
+.settings h2 { margin-bottom: 14px; }
+.menu { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.menu a {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 44px; padding: 0 12px; border-radius: 8px;
+  color: #fff; text-decoration: none; font-size: 14px; font-weight: 500;
+}
+.menu a span { flex: 1; }
+.menu a:hover { background: rgba(255,255,255,.12); }
+.menu a.danger { background: var(--red); }
+.menu a.danger:hover { background: #B80C0C; }
+.chev {
+  width: 8px; height: 8px;
+  border-right: 2px solid currentColor; border-top: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .navbar { padding: 0 12px; }
+  .user-chip__name { display: none; }
+  .page { padding: 20px 16px 40px; }
+  .page__title { font-size: 26px; }
+  .fields { grid-template-columns: 1fr; }
+  .hero .btn { width: 100%; }
+}
+
+/* ---------- Halaman Edit Profil ---------- */
+.bg-cream { background: #F6FCE8; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.btn--white { background: #fff; color: var(--ink); }
+.btn--white:hover { background: #EEF3F1; }
+
+.edit { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; padding: 32px; }
+.edit__photo { display: flex; flex-direction: column; align-items: center; gap: 16px; padding-top: 28px; }
+.photo { position: relative; width: 96px; height: 96px; }
+.photo__img { display: grid; place-items: center; width: 96px; height: 96px; border-radius: 50%; background: var(--green); border: 3px solid #fff; }
+.photo__cam { position: absolute; right: -2px; bottom: -2px; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: var(--ink); }
+.edit__photo .btn { font-size: 13px; padding: 0 16px; cursor: pointer; }
+.edit__photo:focus-within .btn { outline: 3px solid #fff; outline-offset: 2px; }
+
+.edit__form h2 { margin-bottom: 14px; font-size: 20px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 40px; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field--full { grid-column: 1 / -1; }
+.field label { font-size: 13px; }
+.field input, .field select {
+  min-height: 44px; padding: 0 14px;
+  border: 2px solid transparent; border-radius: 10px;
+  background: #fff; color: var(--ink);
+  font: 500 14px "Poppins", sans-serif; width: 100%;
+}
+.field input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(244,123,46,.35); }
+
+.actions { display: flex; justify-content: flex-end; gap: 16px; margin-top: 22px; }
+.actions .btn { min-width: 110px; }
+
+@media (max-width: 860px) {
+  .edit { grid-template-columns: 1fr; padding: 24px; }
+  .edit__photo { padding-top: 0; }
+}
+@media (max-width: 560px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .actions .btn { flex: 1; }
+}
+
+.field select {
+  appearance: none; -webkit-appearance: none;
+  padding-right: 40px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2312293A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+}
+.field select:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(244,123,46,.35); }
