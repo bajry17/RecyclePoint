@@ -17,7 +17,7 @@
     <nav class="breadcrumb" aria-label="Breadcrumb">Dashboard/Profil/Edit Profil</nav>
     <h1 class="page__title">Edit Profil</h1>
 
-    <form class="card edit" action="profile.php" onsubmit="return false">
+    <form class="card edit" action="profile.php" onsubmit="window.location.href='profile.php'; return false;">
       <div class="edit__photo">
         <div class="photo">
           <div class="photo__img" aria-hidden="true">
