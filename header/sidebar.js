@@ -74,9 +74,9 @@
     '<div class="overlay" id="sidebarOverlay" hidden></div>' +
     '<aside class="sidebar" id="sidebar" aria-label="Menu navigasi" inert>' +
       '<div class="sidebar__top">' +
-        '<a class="sidebar__brand" href="index.html">' +
-          '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1F9D5C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 19l-3-5 3-5M17 5l3 5-3 5M9 5h6M9 19h6M4 14h5M15 10h5"/></svg>' +
-          '<span>RecyclePoint</span></a>' +
+        '<a class="sidebar__brand" href="dashboard.php">' +
+          '<img class="sidebar__logo" src="images/logo.png" alt="RecyclePoint">' +
+        '</a>' +
         '<button class="sidebar__close" type="button" aria-label="Tutup menu">' +
           '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '</div>' +
