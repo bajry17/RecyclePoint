@@ -1,6 +1,6 @@
 :root {
   --notif-teal: #245C5A;
-  --notif-teal-soft: #447F7B;   /* chip nonaktif & kartu yang disorot */
+  --notif-teal-soft: #447F7B;   
   --notif-orange: #F47B2E;
   --notif-navy: #1F3A4D;
   --notif-coin: #D4E21A;
@@ -27,7 +27,7 @@
 .notif-readall {
   min-height: 44px; margin-bottom: 20px; padding: 0 16px;
   border: 0; border-radius: 12px; background: var(--notif-orange); color: var(--notif-ink);
-  font: 600 15px "Poppins", sans-serif; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,.25);
+  font: 600 15px "Plus Jakarta Sans", sans-serif; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,.25);
 }
 .notif-readall:hover { background: #E36C20; }
 
@@ -41,7 +41,7 @@
 .notif-tab {
   display: inline-flex; align-items: center; gap: 12px; min-height: 55px; padding: 0 26px;
   border: 0; border-radius: 16px; background: var(--notif-teal-soft); color: #fff;
-  font: 600 15px "Poppins", sans-serif; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,.25);
+  font: 600 15px "Plus Jakarta Sans", sans-serif; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,.25);
 }
 .notif-tab:hover { background: #4E8B86; }
 .notif-tab[aria-pressed="true"] { background: var(--notif-orange); color: var(--notif-ink); }
