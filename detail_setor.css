@@ -1,98 +1,96 @@
 
-/* Halaman detail setor */
-
 .ds-page {
-  max-width: 1120px;
-  padding-top: 20px;
+  width: min(100%, 910px);
+  max-width: 910px;
+  padding: 20px 20px 55px;
 }
 
 .ds-heading {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
+  align-items: center;
+  gap: 12px;
+  margin-top: 3px;
+  margin-bottom: 14px;
 }
 
 .ds-heading .page__title {
-  margin-bottom: 0;
+  margin: 0;
   color: #080D0D;
+  font-size: 32px;
+  line-height: 1.35;
 }
 
 .ds-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
-/* Tombol */
-
-.ds-btn {
-  min-height: 40px;
+.ds-button {
+  min-height: 38px;
   padding: 0 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
   border-radius: 11px;
   font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
-  transition: 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.17);
+  transition: background 0.2s ease;
 }
 
-.ds-btn--white {
-  color: #263D4A;
+.ds-button--white {
+  color: var(--ink);
   background: #fff;
   border: 1px solid #82999A;
 }
 
-.ds-btn--white:hover {
+.ds-button--white:hover {
   background: #EEF3F1;
 }
 
-.ds-btn--orange {
+.ds-button--orange {
   color: #fff;
-  background: #FF7B2B;
-  border: 1px solid #FF7B2B;
+  background: var(--orange);
+  border: 1px solid var(--orange);
 }
 
-.ds-btn--orange:hover {
-  background: #E96B20;
+.ds-button--orange:hover {
+  background: var(--orange-hover);
 }
-
-/* Timeline */
 
 .ds-timeline-card {
   position: relative;
-  background: #fff;
   min-height: 154px;
-  padding: 46px 30px 22px;
-  margin-bottom: 20px;
+  margin-bottom: 19px;
+  padding: 46px 24px 20px;
   border-radius: 12px;
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.20);
+  background: #fff;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.20);
 }
 
 .ds-success {
   position: absolute;
   top: 0;
   right: 0;
-  transform: translateY(0);
-  padding: 5px 14px;
-  border-radius: 0 12px 0 14px;
+  padding: 5px 13px;
+  border-radius: 0 12px 0 13px;
   background: #C8E58A;
   color: #176025;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 .ds-timeline {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   text-align: center;
 }
 
@@ -109,28 +107,30 @@
 .ds-step {
   position: relative;
   z-index: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 0;
 }
 
 .ds-step__circle {
   width: 27px;
   height: 27px;
+  flex: none;
   display: grid;
   place-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   border-radius: 50%;
   background: #286766;
   color: #fff;
 }
 
 .ds-step--last .ds-step__circle {
-  background: #FF7B2B;
+  background: var(--orange);
 }
 
 .ds-step__circle svg {
+  display: block;
   width: 17px;
   height: 17px;
   fill: none;
@@ -141,48 +141,49 @@
 }
 
 .ds-step strong {
-  font-size: 11px;
-  font-weight: 700;
-  color: #111;
   margin-bottom: 2px;
+  color: #111;
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 700;
 }
 
 .ds-step p {
-  font-size: 9px;
-  color: #444;
-  line-height: 1.5;
   min-height: 14px;
+  margin: 0;
+  color: #444;
+  font-size: 8px;
+  line-height: 1.5;
 }
 
 .ds-step time {
-  margin-top: 3px;
-  font-size: 9px;
+  margin-top: 2px;
   color: #444;
+  font-size: 8px;
 }
 
-.ds-step .ds-link-text {
+.ds-step .ds-step__link {
   color: #286766;
 }
 
-/* Layout informasi */
-
 .ds-content {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: 1.26fr 1fr;
+  gap: 15px;
   align-items: stretch;
 }
 
 .ds-info-card,
 .ds-detail-card {
-  background: #fff;
+  min-width: 0;
   border-radius: 12px;
-  padding: 32px 34px;
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.20);
+  background: #fff;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.20);
 }
 
 .ds-info-card {
   min-height: 280px;
+  padding: 30px 34px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -190,42 +191,44 @@
 
 .ds-info-card h2,
 .ds-detail-card h2 {
-  font-size: 13px;
-  font-weight: 700;
+  margin: 0 0 12px;
   color: #111;
-  margin-bottom: 14px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .ds-info-row {
-  min-height: 35px;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 10px;
   border-bottom: 1px solid #E0E0E0;
-  font-size: 11px;
+  color: #222;
+  font-size: 10px;
 }
 
 .ds-info-row:last-child {
-  border-bottom: none;
+  border-bottom: 0;
 }
 
 .ds-info-row span {
-  color: #333;
+  flex-shrink: 0;
 }
 
 .ds-info-row strong {
   color: #111;
   text-align: right;
+  font-size: 10px;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
-/* Kolom kanan */
-
 .ds-right-column {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 15px;
 }
 
 .ds-total-card {
@@ -233,11 +236,11 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  padding: 12px 24px;
+  padding: 10px 15px;
   border-radius: 12px;
   background: #245F5D;
   color: #fff;
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.20);
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.20);
 }
 
 .ds-total-item {
@@ -245,50 +248,52 @@
 }
 
 .ds-total-item p {
-  font-size: 11px;
-  margin-bottom: 2px;
+  margin: 0 0 2px;
+  color: #fff;
+  font-size: 10px;
 }
 
 .ds-total-item strong {
-  font-size: 28px;
+  color: #fff;
+  font-size: 27px;
+  line-height: 1.25;
   font-weight: 700;
 }
 
 .ds-total-item small {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
 }
 
 .ds-total-item--orange p,
-.ds-total-item--orange strong {
+.ds-total-item--orange strong,
+.ds-total-item--orange small {
   color: #FF7B2B;
 }
-
-/* Rincian sampah */
 
 .ds-detail-card {
   flex: 1;
   min-height: 178px;
-  padding-top: 28px;
+  padding: 29px 30px 22px;
 }
 
 .ds-detail-card h2 {
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 }
 
 .ds-table-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(60px, 0.7fr) 40px;
+  grid-template-columns: minmax(0, 1.6fr) minmax(55px, 0.7fr) 35px;
   align-items: center;
-  gap: 8px;
-  min-height: 26px;
+  gap: 6px;
+  min-height: 25px;
   border-bottom: 1px solid #DCDCDC;
-  font-size: 10px;
   color: #222;
+  font-size: 9px;
 }
 
 .ds-table-row:last-child {
-  border-bottom: none;
+  border-bottom: 0;
 }
 
 .ds-table-row span:nth-child(2),
@@ -299,58 +304,86 @@
 
 .ds-table-head {
   color: #777;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .ds-table-row strong {
-  color: #FF7025;
+  color: var(--orange);
+  font-size: 9px;
   font-weight: 500;
 }
 
-/* Responsive */
-
 @media (max-width: 760px) {
+  .ds-page {
+    width: 100%;
+    padding: 22px 22px 45px;
+  }
+
   .ds-heading {
     align-items: flex-start;
+  }
+
+  .ds-heading .page__title {
+    font-size: 27px;
+  }
+
+  .ds-content {
+    grid-template-columns: 1fr 0.9fr;
+    gap: 12px;
+  }
+
+  .ds-info-card {
+    padding: 24px 20px;
+  }
+
+  .ds-detail-card {
+    padding: 24px 18px;
+  }
+
+  .ds-info-row {
+    font-size: 9px;
+  }
+
+  .ds-info-row strong {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 560px) {
+  .ds-page {
+    padding: 18px 15px 35px;
+  }
+
+  .ds-heading {
     flex-direction: column;
+    gap: 12px;
+  }
+
+  .ds-heading .page__title {
+    font-size: 25px;
   }
 
   .ds-actions {
     width: 100%;
   }
 
-  .ds-actions .ds-btn {
+  .ds-button {
     flex: 1;
   }
 
-  .ds-content {
-    grid-template-columns: 1fr;
-  }
-
   .ds-timeline-card {
-    padding: 48px 14px 20px;
+    padding: 45px 15px 20px;
   }
 
-  .ds-step strong {
-    font-size: 9px;
-  }
-
-  .ds-step p,
-  .ds-step time {
-    font-size: 8px;
-  }
-}
-
-@media (max-width: 480px) {
   .ds-timeline {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 16px;
     text-align: left;
   }
 
   .ds-timeline::before {
-    top: 12px;
-    bottom: 12px;
+    top: 13px;
+    bottom: 13px;
     left: 13px;
     right: auto;
     width: 3px;
@@ -359,7 +392,7 @@
 
   .ds-step {
     display: grid;
-    grid-template-columns: 28px 1fr;
+    grid-template-columns: 28px minmax(0, 1fr);
     grid-template-rows: auto auto auto;
     column-gap: 10px;
     text-align: left;
@@ -377,27 +410,37 @@
   .ds-step time {
     grid-column: 2;
     min-height: 0;
+    text-align: left;
   }
 
-  .ds-info-card,
-  .ds-detail-card {
-    padding: 24px 18px;
+  .ds-content {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 
-  .ds-info-row {
-    font-size: 10px;
+  .ds-info-card {
+    min-height: 260px;
+    padding: 25px 22px;
+  }
+
+  .ds-right-column {
+    gap: 14px;
   }
 
   .ds-total-card {
-    padding: 12px;
+    min-height: 90px;
   }
 
-  .ds-total-item strong {
-    font-size: 23px;
+  .ds-detail-card {
+    min-height: 175px;
+    padding: 25px 22px;
+  }
+
+  .ds-table-row {
+    font-size: 10px;
+    min-height: 30px;
   }
 }
-
-/* Tampilan saat dicetak */
 
 @media print {
   body {
@@ -412,8 +455,9 @@
   }
 
   .ds-page {
+    width: 100%;
     max-width: 100%;
-    padding: 20px;
+    padding: 15px;
   }
 
   .ds-timeline-card,
