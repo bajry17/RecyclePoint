@@ -4,7 +4,8 @@
   --orange: #F47B2E;
   --orange-hover: #E36C20;
   --green: #1F9D5C;
-  --red: #D40F0F;
+  --red: #c81010;
+  --red-hover: #b50303;
   --ink: #12293A;
   --muted: #5B6B75;
   --line: #E3E6E8;
@@ -95,8 +96,10 @@ body {
   border: 0; border-radius: 8px;
   font: 600 15px "Poppins", sans-serif; cursor: pointer;
 }
-.btn--orange { background: var(--orange); color: var(--ink); }
+.btn--orange { background: var(--orange); color: var(--bg); }
 .btn--orange:hover { background: var(--orange-hover); }
+.btn--danger { background: var(--red); color: var(--bg); }
+.btn--danger:hover { background: var(--red-hover); }
 .btn--sm { min-height: 40px; padding: 0 18px; font-size: 14px; }
 .btn:focus-visible, .menu a:focus-visible, .icon-btn:focus-visible, .user-chip:focus-visible {
   outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px var(--ink);
