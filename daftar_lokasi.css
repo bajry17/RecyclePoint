@@ -1,0 +1,331 @@
+.dl-page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 20px 28px 52px;
+    font-family: 'Poppins', sans-serif;
+    color: #0F1E26;
+}
+
+/* Breadcrumb */
+
+.dl-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: #555;
+}
+
+.dl-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.dl-breadcrumb a:hover {
+    color: #245C5A;
+}
+
+/* Heading */
+
+.dl-heading {
+    margin-bottom: 12px;
+}
+
+.dl-heading h1 {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.4;
+    font-weight: 600;
+    color: #080D0D;
+}
+
+.dl-heading p {
+    margin: 0;
+    font-size: 12px;
+    color: #555;
+}
+
+/* Search */
+
+.dl-search-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 14px;
+}
+
+.dl-search-box {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    height: 38px;
+    padding: 0 12px;
+    background: #fff;
+    border-radius: 7px;
+}
+
+.dl-search-box svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: #172B2A;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+.dl-search-box input {
+    width: 100%;
+    height: 100%;
+    padding: 0 8px;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    color: #333;
+}
+
+.dl-search-box input::placeholder {
+    color: #AAA;
+}
+
+/* Filter */
+
+.dl-filter-wrapper {
+    position: relative;
+}
+
+.dl-filter-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 7px;
+    background: #356563;
+    color: #fff;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.dl-filter-button:hover {
+    background: #245C5A;
+}
+
+.dl-filter-button svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+}
+
+.dl-filter-menu {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    z-index: 20;
+    width: 175px;
+    padding: 10px;
+    border: 1px solid #E2E8E3;
+    border-radius: 9px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+}
+
+.dl-filter-menu p {
+    margin: 2px 6px 7px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #245C5A;
+}
+
+.dl-filter-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px 6px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    text-align: left;
+    font-family: inherit;
+    font-size: 11px;
+    color: #333;
+    cursor: pointer;
+}
+
+.dl-filter-menu button:hover {
+    background: #F1F6E8;
+}
+
+/* Location heading */
+
+.dl-location-heading {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 12px;
+}
+
+.dl-location-heading h2 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #111;
+}
+
+.dl-location-heading span {
+    font-size: 10px;
+    color: #444;
+}
+
+/* Location panel */
+
+.dl-location-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 28px 4%;
+    border-radius: 8px;
+    background: #356563;
+}
+
+/* Location card */
+
+.dl-location-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 76px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.dl-recycle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: #F2F7E9;
+}
+
+.dl-recycle-icon span {
+    font-family: "Segoe UI Symbol", Arial, sans-serif;
+    font-size: 37px;
+    font-weight: 600;
+    line-height: 1;
+    color: #34844A;
+}
+
+.dl-location-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.dl-location-info h3 {
+    margin: 0 0 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #111;
+}
+
+.dl-location-info p,
+.dl-location-info span {
+    display: block;
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.7;
+    color: #A0A0A0;
+}
+
+.dl-maps-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-width: 109px;
+    padding: 8px 12px;
+    margin-left: 8px;
+    border-radius: 8px;
+    background: #F47B3E;
+    color: #fff;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.dl-maps-button:hover {
+    background: #E9682A;
+}
+
+.dl-maps-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+    border-radius: 2px;
+    background: #4A9BEB;
+    color: #fff;
+    font-size: 10px;
+    line-height: 1;
+}
+
+/* Empty message */
+
+.dl-empty-message {
+    margin: 12px 0;
+    text-align: center;
+    color: #fff;
+    font-size: 12px;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+    .dl-page {
+        padding: 18px 16px 36px;
+    }
+
+    .dl-heading h1 {
+        font-size: 23px;
+    }
+
+    .dl-location-panel {
+        padding: 16px 12px;
+        gap: 12px;
+    }
+
+    .dl-location-card {
+        flex-wrap: wrap;
+        padding: 12px;
+    }
+
+    .dl-location-info {
+        flex-basis: calc(100% - 65px);
+    }
+
+    .dl-maps-button {
+        margin-left: 60px;
+    }
+
+    .dl-location-heading {
+        gap: 12px;
+    }
+
+    .dl-page [hidden] {
+    display: none !important;
+    }
+}
