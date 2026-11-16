@@ -1,0 +1,320 @@
+
+/* =================================
+   RIWAYAT TRANSAKSI POIN
+================================= */
+
+:root {
+    --rt-teal: #245C5A;
+    --rt-teal-soft: #447F7B;
+    --rt-orange: #F47B2E;
+    --rt-ink: #0F1E26;
+    --rt-line: #D9D9D9;
+    --rt-bg: #F7F9F1;
+    --rt-green: #8FA63B;
+}
+
+/* Halaman */
+.rt-page {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    padding-bottom: 50px;
+}
+
+.rt-heading {
+    margin-bottom: 22px;
+}
+
+.rt-heading .page__title {
+    margin-bottom: 5px;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--rt-ink);
+}
+
+.rt-heading p,
+.rt-section-heading p {
+    margin: 0;
+    font-size: 13px;
+    color: #707B76;
+}
+
+/* Ringkasan */
+.rt-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.rt-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-height: 115px;
+    padding: 18px 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,.12);
+    border: 1px solid #E8EDE5;
+}
+
+.rt-card--total {
+    background: var(--rt-teal);
+    color: #fff;
+}
+
+.rt-card__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #86AAA6;
+    color: #1D5A38;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.rt-card__icon--in {
+    background: #E6F1D3;
+    color: #65852D;
+}
+
+.rt-card__icon--out {
+    background: #FCE4D7;
+    color: #D66B2B;
+}
+
+.rt-card p {
+    margin: 0 0 5px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.rt-card strong {
+    display: block;
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.rt-card span {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    opacity: .8;
+}
+
+.rt-in {
+    color: #759C36;
+}
+
+.rt-out {
+    color: var(--rt-orange);
+}
+
+.rt-card--total strong,
+.rt-card--total p,
+.rt-card--total span {
+    color: #fff;
+}
+
+/* Riwayat transaksi */
+.rt-history {
+    margin-top: 10px;
+}
+
+.rt-section-heading {
+    margin-bottom: 16px;
+}
+
+.rt-section-heading h2 {
+    margin: 0 0 5px;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--rt-ink);
+}
+
+/* Filter */
+.rt-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.rt-tab {
+    min-height: 42px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 8px;
+    background: var(--rt-teal-soft);
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.rt-tab:hover {
+    background: #356D68;
+}
+
+.rt-tab.active {
+    background: var(--rt-orange);
+    color: var(--rt-ink);
+}
+
+.rt-tab:focus-visible {
+    outline: 3px solid var(--rt-ink);
+    outline-offset: 3px;
+}
+
+.rt-status {
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: #66736D;
+}
+
+/* Tabel */
+.rt-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,.12);
+}
+
+.rt-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+}
+
+.rt-table thead {
+    background: #5F8C88;
+    color: #fff;
+}
+
+.rt-table th {
+    padding: 16px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rt-table td {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--rt-line);
+    color: var(--rt-ink);
+    vertical-align: middle;
+}
+
+.rt-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.rt-table tbody tr:hover {
+    background: #F7FAF0;
+}
+
+.rt-table td strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rt-table td small {
+    display: block;
+    margin-top: 4px;
+    color: #89928D;
+    font-size: 11px;
+}
+
+.rt-type {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rt-type--in {
+    background: #E3F0CF;
+    color: #557A24;
+}
+
+.rt-type--out {
+    background: #FCE4D7;
+    color: #C45E24;
+}
+
+.rt-amount {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.rt-amount--in {
+    color: #759C36 !important;
+}
+
+.rt-amount--out {
+    color: var(--rt-orange) !important;
+}
+
+.rt-empty {
+    padding: 30px;
+    margin: 0;
+    text-align: center;
+    color: #707B76;
+    font-size: 13px;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* Responsif */
+@media (max-width: 900px) {
+    .rt-summary {
+        gap: 12px;
+    }
+
+    .rt-card {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .rt-card strong {
+        font-size: 19px;
+    }
+}
+
+@media (max-width: 650px) {
+    .rt-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .rt-card {
+        min-height: 95px;
+    }
+
+    .rt-heading .page__title {
+        font-size: 23px;
+    }
+
+    .rt-tabs {
+        gap: 8px;
+    }
+
+    .rt-tab {
+        padding: 0 15px;
+        font-size: 12px;
+    }
+
+    .rt-table {
+        min-width: 650px;
+    }
+}
