@@ -12,62 +12,68 @@
 
   <link rel="stylesheet" href="login.css">
 </head>
-<body class="login-page">
+<body>
 
-  <div class="login-decoration login-decoration--top"></div>
-  <div class="login-decoration login-decoration--bottom"></div>
-  <div class="login-decoration login-decoration--orange"></div>
+  <main class="login-page">
 
-  <header class="login-header">
+    <div class="circle circle--top"></div>
+    <div class="circle circle--bottom"></div>
+    <div class="circle circle--orange"></div>
+
     <a href="index.html" class="login-brand">
-      <img src="images/logo.png" alt="RecyclePoint">
+      <img src="images/logo.png" alt="Logo RecyclePoint">
     </a>
-  </header>
 
-  <main class="login-main">
+    <section class="login-content">
 
-    <section class="login-intro">
-      <h1>Setor sampah,<br>panen poin.</h1>
-      <p>Masuk kembali dan jadikan setiap setoranmu<br class="desktop-break"> lebih bernilai.</p>
-    </section>
+      <div class="login-intro">
+        <h1>Setor sampah,<br>panen poin.</h1>
+        <p>
+          Masuk kembali dan jadikan setiap setoranmu
+          lebih bernilai.
+        </p>
+      </div>
 
-    <section class="login-card">
-      <h2>Login</h2>
+      <div class="login-card">
+        <h2>Login</h2>
 
-      <form onsubmit="window.location.href='dashboard.php'; return false;">
+        <form action="dashboard.php" method="get">
 
-        <div class="login-field">
-          <label for="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="example@email.com"
-            autocomplete="email"
-          >
-        </div>
+          <div class="login-field">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="example@email.com"
+              required
+            >
+          </div>
 
-        <div class="login-field">
-          <label for="password">Kata Sandi</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="••••••••"
-            autocomplete="current-password"
-          >
-        </div>
+          <div class="login-field">
+            <label for="password">Kata Sandi</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              required
+            >
+          </div>
 
-        <button type="submit" class="login-submit">Login</button>
+          <button type="submit" class="login-button">
+            Login
+          </button>
+
+        </form>
 
         <p class="login-register">
           Belum punya akun?
           <a href="register.php">Register</a>
         </p>
+      </div>
 
-      </form>
     </section>
-
   </main>
 
 </body>
