@@ -20,7 +20,7 @@
     <div class="circle circle--bottom"></div>
     <div class="circle circle--orange"></div>
 
-    <a href="index.html" class="login-brand">
+    <a href="index.php" class="login-brand">
       <img src="images/logo.png" alt="Logo RecyclePoint">
     </a>
 
