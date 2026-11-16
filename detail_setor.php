@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -52,7 +51,6 @@
       </div>
     </div>
 
-    <!-- Status transaksi -->
     <section class="ds-timeline-card">
 
       <span class="ds-success">Berhasil</span>
@@ -199,7 +197,6 @@
   <script src="header/sidebar.js" defer></script>
 
   <script>
-    // Tombol notifikasi pada topbar menuju halaman notifikasi.
     document.addEventListener("DOMContentLoaded", function () {
       const tombolNotifikasi = document.querySelector(
         '[aria-label="Notifikasi"]'
@@ -211,7 +208,6 @@
         });
       }
 
-      // Tombol unduh bukti membuat file bukti transaksi sederhana.
       const tombolUnduh = document.getElementById("downloadButton");
 
       tombolUnduh.addEventListener("click", function () {
