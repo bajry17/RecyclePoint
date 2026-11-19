@@ -75,7 +75,8 @@
     '<aside class="sidebar" id="sidebar" aria-label="Menu navigasi" inert>' +
       '<div class="sidebar__top">' +
         '<a class="sidebar__brand" href="dashboard.php">' +
-          '<img src="images/logo.png" width="90%" height="90%" alt="">'
+          '<img src="images/logo.png" width="70%" height="70%" alt="">' +
+        '</a>' +
         '<button class="sidebar__close" type="button" aria-label="Tutup menu">' +
           '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '</div>' +
