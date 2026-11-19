@@ -3,7 +3,7 @@
       <button class="icon-btn" aria-label="Buka menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
-      <a class="brand" href="profile.html">
+      <a class="brand" href="dashboard.html">
         <img src="images/logo.png" width="60%" alt="">
       </a>
     </div>
@@ -17,9 +17,9 @@
       <button class="user-chip" aria-label="Menu akun Dudung">
         <a class="brand" href="profile.php">
           <span class="user-chip__avatar" aria-hidden="true">D</span>
+          <span class="user-chip__name">Dudung</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </a>
-        <span class="user-chip__name">Dudung</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
       </button>
     </div>
   </header>

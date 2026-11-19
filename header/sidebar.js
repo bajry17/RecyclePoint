@@ -93,7 +93,7 @@
         '<a class="side-link" href="notifikasi.php">' + ico('<path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/>') + 'Notifikasi</a>' +
       '</nav>' +
       '<div class="sidebar__bottom">' +
-        '<a class="side-logout" href="#">' + ico('<path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4M16 17l5-5-5-5M21 12H9"/>') + 'Logout</a>' +
+        '<a class="side-logout" href="index.php">' + ico('<path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4M16 17l5-5-5-5M21 12H9"/>') + 'Logout</a>' +
       '</div>' +
     '</aside>';
 

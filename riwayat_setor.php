@@ -46,7 +46,7 @@
     <section class="rs-list-card" aria-label="Daftar riwayat setor">
       <ul class="rs-list">
         <li data-cat="plastik">
-          <a class="rs-row" href="#" aria-label="Lihat detail setor sampah plastik, 12 Nov 2026, 2 kg, +20 poin, berhasil">
+          <a class="rs-row" href="detail_setor.php" aria-label="Lihat detail setor sampah plastik, 12 Nov 2026, 2 kg, +20 poin, berhasil">
             <span class="rs-item"><svg class="rs-cat" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.5h4v2.5l1.5 2.5v12a1.5 1.5 0 0 1-1.5 1.5h-4a1.5 1.5 0 0 1-1.5-1.5v-12L10 5zM8.5 12h7M8.5 16h7"/></svg><span class="rs-name"><strong>Setor Sampah Plastik</strong><time datetime="2026-11-12T14:30">12 Nov 2026 &nbsp; 14.30</time></span></span>
             <span class="rs-meta">
               <span class="rs-cell rs-weight"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8.5 9a3.5 3.5 0 1 1 7 0h3.2a1.5 1.5 0 0 1 1.5 1.3l1.3 9.5a1.5 1.5 0 0 1-1.5 1.7H4a1.5 1.5 0 0 1-1.5-1.7l1.3-9.5A1.5 1.5 0 0 1 5.3 9zm5 0a1.5 1.5 0 1 0-3 0zm-1.5 3.5l2.2 3.2-1.4 1-2.2-3.2z"/></svg>2 kg</span>
