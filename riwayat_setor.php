@@ -42,7 +42,7 @@
     </div>
     <p class="rs-status-msg" id="status" role="status" aria-live="polite"></p>
 
-    <!-- Daftar riwayat (bukan tabel: <ul> + CSS grid) -->
+    <!-- Daftar riwayat -->
     <section class="rs-list-card" aria-label="Daftar riwayat setor">
       <ul class="rs-list">
         <li data-cat="plastik">
@@ -105,6 +105,36 @@
     </section>
   </main>
   
+<script>
+  (function () {
+    var tabs = document.querySelectorAll('.rs-tab');
+    var items = document.querySelectorAll('.rs-list > li');
+    var empty = document.getElementById('emptyMsg');
+    var status = document.getElementById('status');
+    var current = 'semua';
+
+    function apply(announce) {
+      var shown = 0;
+      items.forEach(function (li) {
+        var ok = (current === 'semua' || li.dataset.cat === current);
+        li.hidden = !ok;
+        if (ok) shown++;
+      });
+      empty.hidden = shown !== 0;
+      if (announce) status.textContent = shown + ' setoran ditampilkan.';
+    }
+
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        current = t.dataset.filter;
+        tabs.forEach(function (x) {
+          x.setAttribute('aria-pressed', x === t ? 'true' : 'false');
+        });
+        apply(true);
+      });
+    });
+  })();
+</script>
 <script src="header/sidebar.js" defer></script>
 </body>
 </html>
