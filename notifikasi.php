@@ -35,7 +35,6 @@
 
       <p class="notif-status" id="status" role="status" aria-live="polite"></p>
 
-      <!-- Hari ini -->
       <section class="notif-group" aria-labelledby="g-today">
         <h2 id="g-today">Hari ini</h2>
         <ul class="notif-list">
@@ -55,12 +54,11 @@
               <p>Sampah yang kamu setorkan telah berhasil ditimbang dan dicatat</p>
               <time class="notif-time" datetime="09:31"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>09.31 WIB</time>
             </div>
-            <span class="notif-new">Baru</span>
+            <span class="notif-new">1 jam lalu</span>
           </li>
         </ul>
       </section>
 
-      <!-- Kemarin -->
       <section class="notif-group" aria-labelledby="g-yesterday">
         <h2 id="g-yesterday">Kemarin</h2>
         <ul class="notif-list">
@@ -71,7 +69,7 @@
               <p>Pesanan produk kerajinan kamu sedang diproses penjual</p>
               <time class="notif-time" datetime="10:30"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>10.30 WIB</time>
             </div>
-            <span class="notif-new">Baru</span>
+            <span class="notif-new"> 1 hari lalu</span>
           </li>
         </ul>
       </section>
@@ -79,6 +77,37 @@
       <p class="notif-empty" id="emptyMsg" hidden>Tidak ada notifikasi di kategori ini.</p>
     </section>
   </main>
+
+<script>
+  (function () {
+    var tabs = document.querySelectorAll('.notif-tab');
+    var items = document.querySelectorAll('.notif-list > li');
+    var empty = document.getElementById('emptyMsg');
+    var status = document.getElementById('status');
+    var current = 'semua';
+
+    function apply(announce) {
+      var shown = 0;
+      items.forEach(function (li) {
+        var ok = (current === 'semua' || li.dataset.cat === current);
+        li.hidden = !ok;
+        if (ok) shown++;
+      });
+      empty.hidden = shown !== 0;
+      if (announce) status.textContent = shown + ' setoran ditampilkan.';
+    }
+
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        current = t.dataset.filter;
+        tabs.forEach(function (x) {
+          x.setAttribute('aria-pressed', x === t ? 'true' : 'false');
+        });
+        apply(true);
+      });
+    });
+  })();
+</script>
 
 <script src="header/sidebar.js" defer></script>
 </body>
