@@ -39,26 +39,23 @@
     <!-- Sapaan -->
     <section class="dash-greet">
         <h2>Halo, Dudung!</h2>
-        <p><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a7.5 7.5 0 0 0-7.5 7.5C4.5 15 12 22 12 22s7.5-7 7.5-12.5A7.5 7.5 0 0 0 12 2zm0 10.5a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>Jl. Kembangan Timur, Jakarta Barat</p>
+        <p><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a7.5 7.5 0 0 0-7.5 7.5C4.5 15 12 22 12 22s7.5-7 7.5-12.5A7.5 7.5 0 0 0 12 2zm0 10.5a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>Jl. Melati No. 24, Coblong, Kota Bandung, Jawa Barat</p>
       </section>
 
     <!-- Statistik -->
     <section class="dash-stats" aria-label="Ringkasan">
-        <a class="dash-stat" href="#">
+        <a class="dash-stat" href="riwayat_transaksi.php">
           <svg class="dash-stat__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6.5l1.7 3.5 3.8.5-2.8 2.6.7 3.8-3.4-1.9-3.4 1.9.7-3.8L6.5 10.5l3.8-.5z"/></svg>
-          <span class="dash-stat__txt"><strong>1.250</strong><span>Poin Anda</span></span>
+          <span class="dash-stat__txt"><strong>999999</strong><span>Poin Anda</span></span>
           <i class="dash-chev" aria-hidden="true"></i></a>
         <div class="dash-stat">
           <svg class="dash-stat__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8.5 9a3.5 3.5 0 1 1 7 0h3.2a1.5 1.5 0 0 1 1.5 1.3l1.3 9.5a1.5 1.5 0 0 1-1.5 1.7H4a1.5 1.5 0 0 1-1.5-1.7l1.3-9.5A1.5 1.5 0 0 1 5.3 9zm5 0a1.5 1.5 0 1 0-3 0zm-1.5 3.5l2.2 3.2-1.4 1-2.2-3.2z"/></svg>
-          <span class="dash-stat__txt"><strong>3,5 Kg</strong><span>Sampah Terkumpul</span></span></div>
-        <a class="dash-stat" href="#">
+          <span class="dash-stat__txt"><strong>6,5 Kg</strong><span>Sampah Terkumpul</span></span></div>
+        <a class="dash-stat" href="marketpoin.php">
           <svg class="dash-stat__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 8h18v4H3zM4 13h7v8H4zM13 13h7v8h-7zM11 8h2v13h-2zM12 8C8.5 8 7 5 9 4s3 1.5 3 4zm0 0c3.5 0 5-3 3-4s-3 1.5-3 4z"/></svg>
-          <span class="dash-stat__txt"><strong>2</strong><span>Hadiah Tersedia</span></span>
+          <span class="dash-stat__txt"><strong>4</strong><span>Hadiah Tersedia</span></span>
           <i class="dash-chev" aria-hidden="true"></i></a>
-        <a class="dash-stat" href="#">
-          <svg class="dash-stat__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l10 5V10H2V7.5zM4 11h2.5v7H4zM8.8 11h2.4v7H8.8zM12.8 11h2.4v7h-2.4zM17.5 11H20v7h-2.5zM2 19.5h20V22H2z"/></svg>
-          <span class="dash-stat__txt"><strong>5</strong><span>Mitra Bank Sampah</span></span>
-          <i class="dash-chev" aria-hidden="true"></i></a>
+       
       </section>
 
     <!-- Lokasi & transaksi -->
@@ -67,9 +64,9 @@
           <div class="dash-panel__head">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a7.5 7.5 0 0 0-7.5 7.5C4.5 15 12 22 12 22s7.5-7 7.5-12.5A7.5 7.5 0 0 0 12 2zm0 10.5a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
             <h3 id="loc-title">Lokasi Bank Sampah Terdekat</h3>
-            <a href="#">Selanjutnya <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 1l5 4-5 4zM8 1h1.5v8H8z"/></svg></a>
+            <a href="daftar_lokasi.php">Selanjutnya <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 1l5 4-5 4zM8 1h1.5v8H8z"/></svg></a>
           </div>
-          <div class="dash-map" role="img" aria-label="Peta: Bank Sampah Melati, 1,2 km dari lokasi Anda">
+          <div class="dash-map" role="img" aria-label="Peta: Bank Sampah Asri, 1 km dari lokasi Anda">
             <svg class="dash-map__bg" viewBox="0 0 500 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
               <rect width="500" height="160" fill="#F3E6DF"/>
               <path d="M0 20L120 0h40L0 60zM330 160l120-70 50 10v60z" fill="#DDEFD2"/>
@@ -81,7 +78,7 @@
               <span class="dash-map__pin" aria-hidden="true">
                 <svg width="52" height="62" viewBox="0 0 52 62"><path d="M26 61S3 40 3 24a23 23 0 0 1 46 0C49 40 26 61 26 61z" fill="#1F9D5C"/><circle cx="26" cy="24" r="14" fill="#fff"/><g transform="translate(26 24)" fill="none" stroke="#1F9D5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M-6 6l-3-5 3-5M6-6l3 5-3 5M-3-8h5M-2 8h5"/></g></svg>
               </span>
-              <span class="dash-map__txt"><strong>Bank Sampah Melati</strong><span>1,2 km dari lokasi Anda</span></span>
+              <span class="dash-map__txt"><strong>Bank Sampah Asri</strong><span>1 km dari lokasi Anda</span></span>
               <i class="dash-chev dash-chev--dark" aria-hidden="true"></i>
             </div>
           </div>
@@ -91,7 +88,7 @@
           <div class="dash-panel__head">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v8M6 2v19l3-2 3 2 1.5-1M9 7h6M9 11h3"/><circle cx="17" cy="16" r="3.2"/><path d="M19.5 18.5L22 21"/></svg>
             <h3 id="trx-title">Transaksi Terbaru</h3>
-            <a href="#">Selanjutnya <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 1l5 4-5 4zM8 1h1.5v8H8z"/></svg></a>
+            <a href="riwayat_setor.php">Selanjutnya <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 1l5 4-5 4zM8 1h1.5v8H8z"/></svg></a>
           </div>
           <ul class="dash-trx">
             <li>
