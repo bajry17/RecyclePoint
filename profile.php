@@ -1,3 +1,53 @@
+<?php
+session_start();
+
+// Asumsi: file koneksi bernama koneksi.php dan mendefinisikan $conn (mysqli).
+// Sesuaikan nama file / variabel jika berbeda.
+require_once 'koneksi.php';
+
+// Asumsi: saat login berhasil, $_SESSION['user_id'] diisi dengan users.id
+if (empty($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
+
+$userId = (int) $_SESSION['user_id'];
+
+$stmt = $conn->prepare(
+    'SELECT nama_lengkap, nama_panggilan, email, no_telepon, role, foto,
+            alamat_rumah, provinsi, kota, kecamatan, kode_pos, created_at
+       FROM users
+      WHERE id = ?
+      LIMIT 1'
+);
+$stmt->bind_param('i', $userId);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+// Sesi tidak valid (user sudah dihapus) -> paksa login ulang
+if (!$user) {
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
+
+// Helper escape output
+function e($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
+
+// "Bergabung Sejak Oktober 2026"
+$bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+$tgl = new DateTime($user['created_at']);
+$bergabung = $bulan[(int) $tgl->format('n')] . ' ' . $tgl->format('Y');
+
+// Alamat: provinsi/kota/kecamatan hanya tersimpan sebagai id (tidak ada tabel wilayah),
+// jadi yang ditampilkan alamat rumah + kode pos.
+$alamatParts = array_filter([$user['alamat_rumah'], $user['kode_pos']], 'strlen');
+$alamat = $alamatParts ? implode(', ', $alamatParts) : '-';
+
+$badgeRole = ucfirst($user['role']);
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -19,13 +69,17 @@
 
     <section class="card hero">
       <div class="hero__avatar" aria-hidden="true">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        <?php if (!empty($user['foto'])): ?>
+          <img src="<?= e($user['foto']) ?>" alt="Foto profil <?= e($user['nama_panggilan']) ?>" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+        <?php else: ?>
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        <?php endif; ?>
       </div>
       <div class="hero__info">
-        <h2 class="hero__name">Dudung <span class="badge">Masyarakat</span></h2>
-        <p class="hero__since">Bergabung Sejak Oktober 2026</p>
+        <h2 class="hero__name"><?= e($user['nama_panggilan']) ?> <span class="badge"><?= e($badgeRole) ?></span></h2>
+        <p class="hero__since">Bergabung Sejak <?= e($bergabung) ?></p>
       </div>
-      <a href="index.php">
+      <a href="logout.php">
         <button class="btn btn--danger" type="button">
           <svg style="margin-right:10px" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2"
@@ -44,11 +98,11 @@
           <a class="btn btn--orange btn--sm" href="edit_profile.php">Edit Profil</a>
         </div>
         <dl class="fields">
-          <div><dt>Nama Lengkap</dt><dd>Dudung Somat</dd></div>
-          <div><dt>Nama Panggilan</dt><dd>Dudung</dd></div>
-          <div><dt>Nomor Telepon</dt><dd>081287939220</dd></div>
-          <div><dt>Email</dt><dd>dudung123@gmail.com</dd></div>
-          <div class="fields__full"><dt>Alamat Rumah</dt><dd>Jl. Melati No. 24, Coblong, Kota Bandung, Jawa Barat 40132</dd></div>
+          <div><dt>Nama Lengkap</dt><dd><?= e($user['nama_lengkap']) ?></dd></div>
+          <div><dt>Nama Panggilan</dt><dd><?= e($user['nama_panggilan']) ?></dd></div>
+          <div><dt>Nomor Telepon</dt><dd><?= e($user['no_telepon']) ?></dd></div>
+          <div><dt>Email</dt><dd><?= e($user['email']) ?></dd></div>
+          <div class="fields__full"><dt>Alamat Rumah</dt><dd><?= e($alamat) ?></dd></div>
         </dl>
       </section>
 

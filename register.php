@@ -1,4 +1,128 @@
+<?php
+session_start();
 
+require_once 'koneksi.php';
+
+function e($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
+
+// Jika sudah login, langsung arahkan ke dashboard
+if (!empty($_SESSION['user_id'])) {
+    header('Location: dashboard.php');
+    exit;
+}
+
+if (empty($_SESSION['csrf'])) {
+    $_SESSION['csrf'] = bin2hex(random_bytes(32));
+}
+
+$errors = [];
+$old = [
+    'nama'      => '',
+    'panggilan' => '',
+    'hp'        => '',
+    'email'     => '',
+    'role'      => 'masyarakat',
+    'alamat'    => '',
+    'provinsi'  => 'DKI Jakarta',
+    'kota'      => 'Jakarta Pusat',
+    'kecamatan' => 'Menteng',
+    'kodepos'   => '',
+];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['csrf'], $_POST['csrf'] ?? '')) {
+        http_response_code(400);
+        exit('Permintaan tidak valid.');
+    }
+
+    // Ambil dan bersihkan input
+    foreach ($old as $key => $default) {
+        $old[$key] = trim($_POST[$key] ?? $default);
+    }
+
+    $password   = $_POST['password'] ?? '';
+    $konfirmasi = $_POST['konfirmasi'] ?? '';
+
+    // Validasi input
+    if ($old['nama'] === '') {
+        $errors[] = 'Nama lengkap wajib diisi.';
+    }
+    if ($old['panggilan'] === '') {
+        $errors[] = 'Nama panggilan wajib diisi.';
+    }
+    if ($old['hp'] === '' || !preg_match('/^[0-9+\-\s]{9,16}$/', $old['hp'])) {
+        $errors[] = 'Nomor HP tidak valid.';
+    }
+    if (!filter_var($old['email'], FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Format email tidak valid.';
+    }
+    if (!in_array($old['role'], ['masyarakat', 'pengrajin'], true)) {
+        $errors[] = 'Role yang dipilih tidak valid.';
+    }
+    if ($old['alamat'] === '') {
+        $errors[] = 'Alamat wajib diisi.';
+    }
+    if ($old['provinsi'] === '' || $old['kota'] === '' || $old['kecamatan'] === '') {
+        $errors[] = 'Data wilayah (provinsi, kota, kecamatan) wajib dipilih.';
+    }
+    if (!preg_match('/^[0-9]{5}$/', $old['kodepos'])) {
+        $errors[] = 'Kode pos harus terdiri dari 5 digit angka.';
+    }
+    if (strlen($password) < 8) {
+        $errors[] = 'Kata sandi minimal 8 karakter.';
+    }
+    if ($password !== $konfirmasi) {
+        $errors[] = 'Konfirmasi kata sandi tidak sesuai.';
+    }
+
+    // Cek apakah email sudah terdaftar
+    if (empty($errors)) {
+        $cekStmt = $conn->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+        $cekStmt->bind_param('s', $old['email']);
+        $cekStmt->execute();
+        $sudahAda = $cekStmt->get_result()->fetch_assoc();
+        $cekStmt->close();
+
+        if ($sudahAda) {
+            $errors[] = 'Email sudah terdaftar. Silakan gunakan email lain atau login.';
+        }
+    }
+
+    // Simpan ke database jika semua valid
+    if (empty($errors)) {
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+        $insertStmt = $conn->prepare(
+            'INSERT INTO users 
+            (nama_lengkap, nama_panggilan, no_telepon, email, role, alamat_rumah, provinsi, kota, kecamatan, kode_pos, password_hash) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+
+        $insertStmt->bind_param(
+            'sssssssssss',
+            $old['nama'],
+            $old['panggilan'],
+            $old['hp'],
+            $old['email'],
+            $old['role'],
+            $old['alamat'],
+            $old['provinsi'],
+            $old['kota'],
+            $old['kecamatan'],
+            $old['kodepos'],
+            $passwordHash
+        );
+
+        $insertStmt->execute();
+        $insertStmt->close();
+
+        // Regenerasi token CSRF & arahkan ke halaman login
+        $_SESSION['csrf'] = bin2hex(random_bytes(32));
+        header('Location: index.php?registered=1');
+        exit;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -11,6 +135,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="register.css">
+  <style>
+    .register-error {
+      background: #fdecea;
+      color: #b42318;
+      border: 1px solid #f5c2c0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+    .register-error ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+  </style>
 </head>
 <body>
 
@@ -23,7 +162,18 @@
 
       <h1>Register</h1>
 
-      <form action="index.html" method="get">
+      <?php if (!empty($errors)): ?>
+        <div class="register-error" role="alert">
+          <ul>
+            <?php foreach ($errors as $err): ?>
+              <li><?= e($err) ?></li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+      <?php endif; ?>
+
+      <form action="register.php" method="post">
+        <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
 
         <div class="register-grid">
 
@@ -34,6 +184,7 @@
               id="nama"
               name="nama"
               placeholder="Dudung Somat"
+              value="<?= e($old['nama']) ?>"
               required
             >
           </div>
@@ -45,6 +196,7 @@
               id="panggilan"
               name="panggilan"
               placeholder="Dudung"
+              value="<?= e($old['panggilan']) ?>"
               required
             >
           </div>
@@ -56,6 +208,7 @@
               id="hp"
               name="hp"
               placeholder="081287939220"
+              value="<?= e($old['hp']) ?>"
               required
             >
           </div>
@@ -67,6 +220,7 @@
               id="email"
               name="email"
               placeholder="dudung123@gmail.com"
+              value="<?= e($old['email']) ?>"
               required
             >
           </div>
@@ -74,42 +228,38 @@
           <div class="register-field">
             <label for="role">Role</label>
             <select id="role" name="role" required>
-              <option value="masyarakat" selected>Masyarakat</option>
-              <option value="pengrajin">Pengrajin</option>
+              <option value="masyarakat" <?= $old['role'] === 'masyarakat' ? 'selected' : '' ?>>Masyarakat</option>
+              <option value="pengrajin" <?= $old['role'] === 'pengrajin' ? 'selected' : '' ?>>Pengrajin</option>
             </select>
           </div>
+
           <div class="register-field">
             <label for="alamat">Alamat</label>
             <input
-              type="alamat"
+              type="text"
               id="alamat"
               name="alamat"
               placeholder="Jl. Melati No. 24"
+              value="<?= e($old['alamat']) ?>"
               required
             >
           </div>
 
-
-
           <div class="register-field">
             <label for="provinsi">Provinsi</label>
             <select id="provinsi" name="provinsi" required>
-              <option value="DKI Jakarta" selected>DKI Jakarta</option>
+              <option value="DKI Jakarta" <?= $old['provinsi'] === 'DKI Jakarta' ? 'selected' : '' ?>>DKI Jakarta</option>
             </select>
           </div>
 
           <div class="register-field">
             <label for="kota">Kota/kabupaten</label>
-            <select id="kota" name="kota" required>
-              <option value="Jakarta Pusat" selected>Jakarta Pusat</option>
-            </select>
+            <select id="kota" name="kota" required></select>
           </div>
 
           <div class="register-field">
             <label for="kecamatan">Kecamatan</label>
-            <select id="kecamatan" name="kecamatan" required>
-              <option value="Menteng" selected>Menteng</option>
-            </select>
+            <select id="kecamatan" name="kecamatan" required></select>
           </div>
 
           <div class="register-field">
@@ -118,8 +268,10 @@
               type="text"
               id="kodepos"
               name="kodepos"
-              placeholder="40132"
+              placeholder="10310"
               inputmode="numeric"
+              maxlength="5"
+              value="<?= e($old['kodepos']) ?>"
               required
             >
           </div>
@@ -131,6 +283,7 @@
               id="password"
               name="password"
               placeholder="••••••••"
+              minlength="8"
               required
             >
           </div>
@@ -142,6 +295,7 @@
               id="konfirmasi"
               name="konfirmasi"
               placeholder="••••••••"
+              minlength="8"
               required
             >
           </div>
@@ -156,7 +310,7 @@
 
       <p class="register-login">
         Sudah punya akun?
-        <a href="index.php  ">Login</a>
+        <a href="index.php">Login</a>
       </p>
 
     </section>
@@ -177,9 +331,8 @@
     const kota = document.getElementById("kota");
     const kecamatan = document.getElementById("kecamatan");
 
-    function isiKota(pilihanKota = "") {
+    function isiKota(pilihanKota = "", pilihanKecamatan = "") {
       const daftarKota = wilayah[provinsi.value] || {};
-
       kota.innerHTML = "";
 
       Object.keys(daftarKota).forEach(namaKota => {
@@ -193,13 +346,11 @@
         kota.value = pilihanKota;
       }
 
-      isiKecamatan();
+      isiKecamatan(pilihanKecamatan);
     }
 
     function isiKecamatan(pilihanKecamatan = "") {
-      const daftarKecamatan =
-        wilayah[provinsi.value]?.[kota.value] || [];
-
+      const daftarKecamatan = wilayah[provinsi.value]?.[kota.value] || [];
       kecamatan.innerHTML = "";
 
       daftarKecamatan.forEach(namaKecamatan => {
@@ -214,19 +365,12 @@
       }
     }
 
-    provinsi.addEventListener("change", () => {
-      isiKota();
-    });
+    provinsi.addEventListener("change", () => isiKota());
+    kota.addEventListener("change", () => isiKecamatan());
 
-    kota.addEventListener("change", () => {
-      isiKecamatan();
-    });
+    // Set pilihan awal sesuai data terakhir (atau default Jakarta Pusat -> Menteng)
+    isiKota(<?= json_encode($old['kota']) ?>, <?= json_encode($old['kecamatan']) ?>);
 
-    // Pilihan awal mengikuti contoh pada desain.
-    isiKota("Bandung");
-    isiKecamatan("Coblong");
-
-    // Pemeriksaan sederhana konfirmasi password.
     document.querySelector("form").addEventListener("submit", function(event) {
       const password = document.getElementById("password").value;
       const konfirmasi = document.getElementById("konfirmasi").value;
