@@ -22,12 +22,12 @@
     <section class="rs-summary" aria-label="Ringkasan setoran">
       <div class="rs-sum">
         <span class="rs-sum__ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19l-3-5 3-5M17 5l3 5-3 5M9 5h6M9 19h6M4 14h5M15 10h5"/></svg></span>
-        <div><p>Total Sampah Terkumpul</p><strong>12,5 Kg</strong></div>
+        <div><p>Total Sampah Terkumpul</p><strong>6,5 Kg</strong></div>
       </div>
       <span class="rs-summary__line" aria-hidden="true"></span>
       <div class="rs-sum">
         <span class="rs-sum__ico rs-sum__ico--star" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6.5l1.7 3.5 3.8.5-2.8 2.6.7 3.8-3.4-1.9-3.4 1.9.7-3.8L6.5 10.5l3.8-.5z"/></svg></span>
-        <div><p>Total Poin Didapat</p><strong>+ 1.250 Poin</strong></div>
+        <div><p>Total Poin Didapat</p><strong>+ 65 Poin</strong></div>
       </div>
     </section>
 
@@ -44,6 +44,15 @@
 
     <!-- Daftar riwayat -->
     <section class="rs-list-card" aria-label="Daftar riwayat setor">
+       <div class="rs-head" aria-hidden="true">
+    <span class="rs-head-item">Jenis Sampah</span>
+    <span class="rs-head-meta">
+      <span>Berat</span>
+      <span>Poin</span>
+      <span>Status</span>
+    </span>
+    <span></span>
+  </div>
       <ul class="rs-list">
         <li data-cat="plastik">
           <a class="rs-row" href="detail_setor.php" aria-label="Lihat detail setor sampah plastik, 12 Nov 2026, 2 kg, +20 poin, berhasil">
