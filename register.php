@@ -71,10 +71,17 @@
             >
           </div>
 
-          <div class="register-field register-field--full">
+          <div class="register-field">
+            <label for="role">Role</label>
+            <select id="role" name="role" required>
+              <option value="masyarakat" selected>Masyarakat</option>
+              <option value="pengrajin">Pengrajin</option>
+            </select>
+          </div>
+          <div class="register-field">
             <label for="alamat">Alamat</label>
             <input
-              type="text"
+              type="alamat"
               id="alamat"
               name="alamat"
               placeholder="Jl. Melati No. 24"
@@ -82,29 +89,26 @@
             >
           </div>
 
+
+
           <div class="register-field">
             <label for="provinsi">Provinsi</label>
             <select id="provinsi" name="provinsi" required>
-              <option value="">Pilih Provinsi</option>
-              <option value="Jawa Barat" selected>Jawa Barat</option>
-              <option value="DKI Jakarta">DKI Jakarta</option>
-              <option value="Jawa Tengah">Jawa Tengah</option>
-              <option value="Jawa Timur">Jawa Timur</option>
-              <option value="Banten">Banten</option>
+              <option value="DKI Jakarta" selected>DKI Jakarta</option>
             </select>
           </div>
 
           <div class="register-field">
             <label for="kota">Kota/kabupaten</label>
             <select id="kota" name="kota" required>
-              <option value="Bandung" selected>Bandung</option>
+              <option value="Jakarta Pusat" selected>Jakarta Pusat</option>
             </select>
           </div>
 
           <div class="register-field">
             <label for="kecamatan">Kecamatan</label>
             <select id="kecamatan" name="kecamatan" required>
-              <option value="Coblong" selected>Coblong</option>
+              <option value="Menteng" selected>Menteng</option>
             </select>
           </div>
 
@@ -152,7 +156,7 @@
 
       <p class="register-login">
         Sudah punya akun?
-        <a href="index.html">Login</a>
+        <a href="index.php  ">Login</a>
       </p>
 
     </section>
@@ -160,34 +164,12 @@
 
   <script>
     const wilayah = {
-      "Jawa Barat": {
-        "Bandung": ["Coblong", "Cicendo", "Lengkong", "Sukajadi", "Cibeunying Kidul"],
-        "Bekasi": ["Bekasi Timur", "Bekasi Barat", "Bekasi Utara"],
-        "Bogor": ["Bogor Tengah", "Bogor Barat", "Bogor Utara"],
-        "Depok": ["Beji", "Cimanggis", "Pancoran Mas"],
-        "Cimahi": ["Cimahi Utara", "Cimahi Tengah", "Cimahi Selatan"]
-      },
       "DKI Jakarta": {
         "Jakarta Selatan": ["Kebayoran Baru", "Tebet", "Cilandak"],
         "Jakarta Barat": ["Cengkareng", "Kebon Jeruk", "Grogol Petamburan"],
         "Jakarta Timur": ["Cakung", "Duren Sawit", "Kramat Jati"],
         "Jakarta Utara": ["Kelapa Gading", "Tanjung Priok"],
         "Jakarta Pusat": ["Menteng", "Gambir", "Tanah Abang"]
-      },
-      "Jawa Tengah": {
-        "Semarang": ["Banyumanik", "Tembalang", "Semarang Barat"],
-        "Surakarta": ["Banjarsari", "Laweyan", "Jebres"],
-        "Magelang": ["Magelang Utara", "Magelang Selatan"]
-      },
-      "Jawa Timur": {
-        "Surabaya": ["Wonokromo", "Gubeng", "Tegalsari"],
-        "Malang": ["Klojen", "Lowokwaru", "Blimbing"],
-        "Kediri": ["Mojoroto", "Kota", "Pesantren"]
-      },
-      "Banten": {
-        "Tangerang": ["Cipondoh", "Karawaci", "Ciledug"],
-        "Tangerang Selatan": ["Pamulang", "Serpong", "Ciputat"],
-        "Serang": ["Serang", "Cipocok Jaya", "Kasemen"]
       }
     };
 
