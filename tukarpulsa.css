@@ -1,36 +1,7 @@
-/* =========================================================
-   tukarpulsa.css | RecyclePoint
-   Catatan: path gambar di file ini relatif terhadap lokasi CSS.
-   Kalau CSS dipindah ke folder css/, ubah jadi ../images/...
-   ========================================================= */
+/* ===== topbar (class dari top_nav.php) ===== */
+:root { --line: #e2e8d5; --ink: #2e4704; }
+body { margin: 0; background: #f5fbe6; }
 
-:root {
-  --line: #e5e5e5;
-  --ink: #2e4704;
-  --bg: #f5fbe6;
-  --green: #076735;
-  --olive: #7a9a1c;
-  --orange: #fe7f2d;
-  --orange-dark: #e8691a;
-  --gold: #fcc01e;
-  --teal: #235f5f;
-  --navy: #233d4d;
-  --font-main: 'Plus Jakarta Sans', sans-serif;
-  --font-display: 'DM Serif Display', serif;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: #000;
-  font-family: var(--font-main);
-}
-
-a { color: inherit; text-decoration: none; }
-
-/* ---------- Navbar (sementara) ---------- */
 .navbar {
   display: flex;
   align-items: center;
@@ -43,180 +14,85 @@ a { color: inherit; text-decoration: none; }
   top: 0;
   z-index: 10;
 }
-.navbar_left, .navbar_right { display: flex; align-items: center; gap: 12px; }
+.navbar_left, .navbar_right,
+.navbar__left, .navbar__right { display: flex; align-items: center; gap: 12px; }
 .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: 18px; }
+.navbar .brand img { display: block; height: 40px; width: auto; }
+.navbar__right .brand img { height: 26px; }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0;
+  border-radius: 10px; background: transparent; color: #000; cursor: pointer; }
+.icon-btn:hover { background: rgba(0, 0, 0, .06); }
+.user-chip { display: flex; align-items: center; gap: 8px; margin-left: 4px; padding: 4px 8px 4px 16px;
+  border: 0; border-left: 1px solid var(--line); background: transparent; color: #000; cursor: pointer;
+  font: 400 18px 'Poppins', sans-serif; }
+.user-chip .brand { gap: 0; }
+.user-chip__avatar { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+  background: var(--ink); color: #fff; font: 600 16px 'Poppins', sans-serif; }
 
-/* ---------- Ikon (diwarnai lewat CSS mask) ---------- */
-.ico {
-  display: inline-block;
-  flex: none;
-  background-color: currentColor;
-  -webkit-mask: var(--icon) center / contain no-repeat;
-          mask: var(--icon) center / contain no-repeat;
+/* ===== halaman Tukar Pulsa ===== */
+.tp, .tp * { box-sizing: border-box; }
+.tp { color: #000; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+.tp-ico { display: inline-block; flex: none; width: 41px; height: 41px; background: currentColor;
+  -webkit-mask: center / contain no-repeat; mask: center / contain no-repeat; }
+.tp-i-leaf   { -webkit-mask-image: url(images/leaf.svg);   mask-image: url(images/leaf.svg); }
+.tp-i-phone  { -webkit-mask-image: url(images/phone.svg);  mask-image: url(images/phone.svg); }
+.tp-i-wallet { -webkit-mask-image: url(images/wallet.svg); mask-image: url(images/wallet.svg); }
+.tp-i-chev   { width: 26px; height: 26px; color: #fff;
+  -webkit-mask-image: url(images/chevron-right.svg); mask-image: url(images/chevron-right.svg); }
+
+/* hero */
+.tp-hero { position: relative; overflow: hidden; background: #233d4d; border-radius: 0 0 50px 50px; }
+.tp-hero::before { content: ""; position: absolute; inset: 0; opacity: .4;
+  background: url(images/bg_market.jpg) center / cover no-repeat; }
+.tp-hero-in { position: relative; padding: 16px 65px 62px; }
+.tp-h1 { margin: 0; font: 400 64px/1.2 'DM Serif Display', serif; color: #f5fbe6; }
+.tp-h1 em { font-style: normal; color: #fe7f2d; }
+.tp-sub { margin: 4px 0 0 10px; font: 400 36px/1.2 'DM Serif Display', serif; color: #f5fbe6; }
+
+.tp-pills { display: flex; flex-wrap: wrap; gap: 41px; margin-top: 24px; }
+.tp-pill { display: flex; align-items: center; gap: 5px; height: 63px; padding: 0 18px 0 16px;
+  border-radius: 68px; background: #fff; color: #076735; font-size: 22px; text-decoration: none; }
+.tp-pill.is-active { background: #076735; color: #fff; }
+
+/* kartu poin (menempel ke tepi kanan layar, seperti di Figma) */
+.tp-poin { position: absolute; top: 123px; right: 0; width: 422px; height: 117px;
+  display: flex; align-items: center; background: #235f5f; border-radius: 42px 0 0 42px; color: #fff; }
+.tp-poin-left { display: flex; align-items: center; gap: 3px; width: 215px; padding-left: 7px; }
+.tp-poin-left img { width: 76px; height: 76px; flex: none; }
+.tp-poin-label { font-weight: 600; font-size: 24px; line-height: 30px; }
+.tp-poin-val { font-weight: 800; font-size: 30px; line-height: 38px; }
+.tp-poin-divider { width: 2.5px; height: 98px; background: #fff; }
+.tp-poin-hist { padding-left: 12px; font-weight: 600; font-size: 24px; }
+.tp-poin .tp-i-chev { position: absolute; left: 375px; top: 50%; transform: translateY(-50%); }
+@media (max-width: 1360px) {
+  .tp-poin { position: static; margin: 0 0 24px auto; }
 }
 
-/* ---------- Hero (versi pendek) ---------- */
-.hero {
-  position: relative;
-  height: 290px;
-  background: var(--navy);
-  border-radius: 0 0 50px 50px;
-  overflow: hidden;
-}
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url('images/bg_market.jpg') center / cover no-repeat;
-  opacity: .4;
-}
-.hero_inner {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 16px 65px 0;
-}
-.hero_title {
-  margin: 0;
-  font: 400 64px/1.2 var(--font-display);
-  color: var(--bg);
-  white-space: nowrap;
-}
-.hero_title .accent { color: var(--orange); }
-.hero_sub {
-  margin: 4px 0 0 10px;
-  font: 400 36px/1.2 var(--font-display);
-  color: var(--bg);
-}
+/* form top-up */
+.tp-form { margin: 0; }
+.tp-wrap { padding: 21px 62px 0; }
+.tp-wrap h2 { margin: 0 0 0 3px; font: 700 36px/1.25 'Plus Jakarta Sans', sans-serif; }
+.tp-label { display: block; margin: 15px 0 0 3px; font-size: 20px; }
+.tp-input { display: block; width: 100%; max-width: 747px; height: 55px; margin: 5px 0 0 3px;
+  padding: 0 16px; border: 1px solid #2e4704; background: #fff;
+  font: 400 20px 'Plus Jakarta Sans', sans-serif; outline: none; }
+.tp-input::placeholder { color: rgba(0, 0, 0, .5); }
+.tp-input:focus { border-color: #076735; box-shadow: 0 0 0 2px rgba(7, 103, 53, .2); }
 
-/* ---------- Kategori (pill) ---------- */
-.pills { display: flex; gap: 41px; margin-top: 24px; }
-.pill {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  height: 63px;
-  padding: 0 22px 0 16px;
-  border-radius: 68px;
-  background: #fff;
-  color: var(--green);
-  font-size: 22px;
-  font-weight: 400;
-  white-space: nowrap;
-}
-.pill .ico { width: 41px; height: 41px; }
-.pill--active { background: var(--green); color: #fff; }
+.tp-opts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 60px 56px; margin-top: 21px; }
+.tp-opt { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  height: 119px; background: #fff; border: 1px solid #fe7f2d; cursor: pointer;
+  font-family: inherit; font-size: 24px; color: #000; }
+.tp-opt:hover { background: #fff3e8; }
+.tp-opt.is-selected { background: #ffe6d0; box-shadow: inset 0 0 0 2px #fe7f2d; }
+.tp-hrg { display: flex; align-items: center; font-weight: 800; font-size: 21px; color: #fcc01e; }
+.tp-hrg img { width: 35px; height: 35px; }
 
-/* ---------- Kartu poin ---------- */
-.points_card {
-  position: absolute;
-  right: 0;
-  top: 123px;
-  display: flex;
-  align-items: center;
-  width: 422px;
-  height: 117px;
-  padding: 0 21px 0 7px;
-  border-radius: 42px 0 0 42px;
-  background: var(--teal);
-  color: #fff;
-}
-.points_info { display: flex; align-items: center; gap: 4px; flex: 0 0 208px; }
-.points_coin { width: 76px; height: 76px; }
-.points_label { font-size: 24px; font-weight: 600; line-height: 1.3; }
-.points_value { font-size: 30px; font-weight: 800; line-height: 1.2; }
-.points_divider { width: 2px; height: 98px; margin-right: 10px; background: #fff; }
-.points_history {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 24px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.points_history .ico { width: 26px; height: 26px; }
-
-/* ---------- Form top-up ---------- */
-.topup {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 30px 65px 70px;
-}
-.topup_title { margin: 0 0 4px; font: 600 36px/1.3 var(--font-main); }
-.field_label { display: block; font-size: 20px; font-weight: 400; }
-.field_input {
-  display: block;
-  width: 746px;
-  max-width: 100%;
-  height: 53px;
-  margin-top: 4px;
-  padding: 0 14px;
-  border: 1px solid var(--olive);
-  background: #fff;
-  font: 400 20px var(--font-main);
-  color: #000;
-}
-.field_input::placeholder { color: rgba(0, 0, 0, .55); }
-.field_input:focus { outline: 2px solid var(--olive); outline-offset: 1px; }
-
-/* ---------- Pilihan nominal ---------- */
-.nominal_grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  column-gap: 60px;
-  row-gap: 62px;
-  margin-top: 22px;
-}
-.nominal { position: relative; display: block; cursor: pointer; }
-.nominal input { position: absolute; opacity: 0; pointer-events: none; }
-.nominal_box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 117px;
-  border: 1px solid var(--orange);
-  background: transparent;
-  transition: background-color .15s, color .15s;
-}
-.nominal_rp { font-size: 26px; font-weight: 400; }
-.nominal_poin {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--gold);
-}
-.nominal_poin img { width: 28px; height: 28px; }
-.nominal:hover .nominal_box { background: rgba(254, 127, 45, .12); }
-.nominal input:checked + .nominal_box { background: var(--orange); color: #fff; }
-.nominal input:checked + .nominal_box .nominal_poin { color: #fff; }
-.nominal input:focus-visible + .nominal_box { outline: 3px solid var(--green); outline-offset: 2px; }
-
-/* ---------- Total + tombol ---------- */
-.checkout {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 35px;
-  margin-top: 38px;
-}
-.checkout_total { display: flex; align-items: center; gap: 8px; }
-.checkout_label { margin-right: 6px; font-size: 22px; font-weight: 400; }
-.checkout_total img { width: 32px; height: 32px; }
-.checkout_value { font-size: 28px; font-weight: 800; color: var(--gold); }
-.checkout_btn {
-  width: 320px;
-  height: 44px;
-  border: 2px solid var(--orange-dark);
-  border-radius: 10px;
-  background: var(--orange);
-  color: #fff;
-  font: 400 22px var(--font-main);
-  cursor: pointer;
-}
-.checkout_btn:disabled { opacity: .45; cursor: not-allowed; }
+.tp-foot { display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 38px 63px 60px; }
+.tp-tot { font-size: 24px; }
+.tp-tp { display: flex; align-items: center; font-weight: 800; font-size: 28px; color: #fcc01e; }
+.tp-tp img { width: 47px; height: 47px; }
+.tp-btn { width: 321px; height: 46px; margin-left: 24px; border: 3px solid #df712a; border-radius: 15px;
+  background: #fe7f2d; font: 400 24px 'Plus Jakarta Sans', sans-serif; color: #000; cursor: pointer; }
+.tp-btn:disabled { opacity: .45; cursor: not-allowed; }

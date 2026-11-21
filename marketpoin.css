@@ -1,15 +1,6 @@
-/* market-poin.css – khusus halaman Market Poin.
-   Dimuat SETELAH profile.css. Class baru diawali "mp-".
-   Gambar latar hero: taruh di images/market-hero.jpg (opsional). */
-:root {
-  --mp-green: #1F5E3B;
-  --mp-green-2: #2E8B57;
-  --mp-orange: #F47B2E;
-  --mp-price: #C2570C;     /* oranye lebih gelap agar terbaca di latar putih */
-  --mp-olive: #64830F;
-  --mp-ink: #12293A;
-}
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* ===== topbar (class dari top_nav.php) ===== */
+:root { --line: #e2e8d5; --ink: #2e4704; }
+body { margin: 0; background: #f5fbe6; }
 
 .navbar {
   display: flex;
@@ -23,118 +14,86 @@
   top: 0;
   z-index: 10;
 }
+.navbar_left, .navbar_right,
 .navbar__left, .navbar__right { display: flex; align-items: center; gap: 12px; }
 .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: 18px; }
+.navbar .brand img { display: block; height: 40px; width: auto; }
+.navbar__right .brand img { height: 26px; }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0;
+  border-radius: 10px; background: transparent; color: #000; cursor: pointer; }
+.icon-btn:hover { background: rgba(0, 0, 0, .06); }
+.user-chip { display: flex; align-items: center; gap: 8px; margin-left: 4px; padding: 4px 8px 4px 16px;
+  border: 0; border-left: 1px solid var(--line); background: transparent; color: #000; cursor: pointer;
+  font: 400 18px 'Poppins', sans-serif; }
+.user-chip .brand { gap: 0; }
+.user-chip__avatar { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+  background: var(--ink); color: #fff; font: 600 16px 'Poppins', sans-serif; }
 
-.mp-hero {
-  color: #fff; border-radius: 0 0 32px 32px; overflow: hidden;
-  background:
-    linear-gradient(90deg, rgba(8,50,30,.72) 0%, rgba(8,50,30,.35) 55%, rgba(8,50,30,.1) 100%),
-    url("images/bg_market.jpg") center / cover no-repeat,
-    radial-gradient(circle at 85% 20%, rgba(255,255,255,.18) 0 90px, transparent 91px),
-    linear-gradient(135deg, #1D5A43 0%, #2E8B57 55%, #6FA83A 100%);
-}
-.mp-hero__inner {
-  max-width: 1120px; margin: 0 auto; padding: 36px 24px 36px;
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: start;
-}
-.mp-hero h1 { margin: 0; font-size: clamp(28px, 4vw, 46px); line-height: 1.15; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,.35); }
-.mp-hero h1 span { color: var(--mp-orange); }
-.mp-hero__sub { margin: 8px 0 0; font-size: clamp(16px, 1.8vw, 22px); font-weight: 600; text-shadow: 0 1px 6px rgba(0,0,0,.4); }
+/* ===== halaman Market Poin ===== */
+.mp, .mp * { box-sizing: border-box; }
+.mp { color: #000; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-.mp-cats { display: flex; flex-wrap: wrap; gap: 14px; margin: 22px 0 22px; padding: 0; list-style: none; }
-.mp-cat {
-  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px;
-  border-radius: 12px; background: #fff; color: var(--mp-green); text-decoration: none;
-  font-size: 15px; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,.25);
-}
-.mp-cat:hover { background: #EAF5EC; }
-.mp-cat.is-active { background: var(--mp-green); color: #fff; }
-.mp-cat.is-active:hover { background: #17492E; }
+.mp-ico { display: inline-block; flex: none; width: 41px; height: 41px; background: currentColor;
+  -webkit-mask: center / contain no-repeat; mask: center / contain no-repeat; }
+.mp-i-leaf   { -webkit-mask-image: url(images/leaf.svg);   mask-image: url(images/leaf.svg); }
+.mp-i-phone  { -webkit-mask-image: url(images/phone.svg);  mask-image: url(images/phone.svg); }
+.mp-i-wallet { -webkit-mask-image: url(images/wallet.svg); mask-image: url(images/wallet.svg); }
+.mp-i-chev   { width: 26px; height: 26px; color: #fff;
+  -webkit-mask-image: url(images/chevron-right.svg); mask-image: url(images/chevron-right.svg); }
 
-.mp-searchrow { display: flex; align-items: center; gap: 22px; max-width: 640px; }
-.mp-search { flex: 1; display: flex; align-items: center; min-width: 0; padding: 4px; border-radius: 12px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
-.mp-search input {
-  flex: 1; min-width: 0; min-height: 40px; padding: 0 14px; border: 0; background: transparent;
-  font: 400 15px "Plus Jakarta Sans", sans-serif; color: var(--mp-ink);
-}
-.mp-search input:focus { outline: none; }
-.mp-search:focus-within { box-shadow: 0 0 0 3px var(--mp-orange); }
-.mp-search button {
-  display: grid; place-items: center; width: 44px; height: 40px; flex: none;
-  border: 0; border-radius: 9px; background: var(--mp-olive); color: #fff; cursor: pointer;
-}
-.mp-search button:hover { background: #50690C; }
-.mp-cart {
-  display: grid; place-items: center; flex: none; width: 56px; height: 56px;
-  border-radius: 14px; background: rgba(20,60,50,.85); color: var(--mp-orange);
-  box-shadow: 0 2px 6px rgba(0,0,0,.3);
-}
-.mp-cart:hover { background: rgba(20,60,50,1); }
+/* hero */
+.mp-hero { position: relative; overflow: hidden; background: #233d4d; border-radius: 0 0 50px 50px; }
+.mp-hero::before { content: ""; position: absolute; inset: 0; opacity: .4;
+  background: url(images/bg_market.jpg) center / cover no-repeat; }
+.mp-hero-in { position: relative; padding: 16px 65px 49px; }
+.mp-h1 { margin: 0; font: 400 64px/1.2 'DM Serif Display', serif; color: #f5fbe6; }
+.mp-h1 em { font-style: normal; color: #fe7f2d; }
+.mp-sub { margin: 4px 0 0 10px; font: 400 36px/1.2 'DM Serif Display', serif; color: #f5fbe6; }
 
-.mp-points {
-  display: flex; align-items: center; gap: 14px; padding: 12px 20px 12px 16px;
-  border-radius: 18px; background: rgba(20,70,50,.85); box-shadow: 0 2px 8px rgba(0,0,0,.3);
-}
-.mp-points__txt { display: flex; flex-direction: column; }
-.mp-points__txt span { font-size: 14px; }
-.mp-points__txt strong { font-size: 22px; line-height: 1.2; }
-.mp-points__link {
-  display: inline-flex; align-items: center; gap: 6px; margin-left: 6px; padding-left: 16px;
-  border-left: 2px solid rgba(255,255,255,.55); color: #fff; text-decoration: none; font-size: 15px; font-weight: 500; white-space: nowrap;
-}
-.mp-points__link:hover { text-decoration: underline; }
-.mp-chev { width: 8px; height: 8px; border-right: 2px solid currentColor; border-top: 2px solid currentColor; transform: rotate(45deg); }
+.mp-pills { display: flex; flex-wrap: wrap; gap: 41px; margin-top: 24px; }
+.mp-pill { display: flex; align-items: center; gap: 5px; height: 63px; padding: 0 18px 0 16px;
+  border-radius: 68px; background: #fff; color: #076735; font-size: 22px; text-decoration: none; }
+.mp-pill.is-active { background: #076735; color: #fff; }
 
-.mp-cat:focus-visible, .mp-search button:focus-visible, .mp-cart:focus-visible, .mp-points__link:focus-visible {
-  outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px var(--mp-ink);
+/* pencarian */
+.mp-search { position: relative; width: 818px; max-width: 100%; height: 57px; margin-top: 60px;
+  background: #fff; border: 1.15px solid #2e4704; border-radius: 17px; }
+.mp-search input { width: 100%; height: 100%; border: 0; background: transparent; border-radius: 17px;
+  padding: 0 110px 0 10px; font: 400 23px 'Plus Jakarta Sans', sans-serif; outline: none; }
+.mp-search input::placeholder { color: rgba(46, 71, 4, .5); }
+.mp-search button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 87px; height: 48px; padding: 0; border: 0; background: none; cursor: pointer; }
+.mp-search button img { display: block; width: 100%; height: 100%; }
+
+/* kartu poin (menempel ke tepi kanan layar, seperti di Figma) */
+.mp-poin { position: absolute; top: 123px; right: 0; width: 422px; height: 117px;
+  display: flex; align-items: center; background: #235f5f; border-radius: 42px 0 0 42px; color: #fff; }
+.mp-poin-left { display: flex; align-items: center; gap: 3px; width: 215px; padding-left: 7px; }
+.mp-poin-left img { width: 76px; height: 76px; flex: none; }
+.mp-poin-label { font-weight: 600; font-size: 24px; line-height: 30px; }
+.mp-poin-val { font-weight: 800; font-size: 30px; line-height: 38px; }
+.mp-poin-divider { width: 2.5px; height: 98px; background: #fff; }
+.mp-poin-hist { padding-left: 12px; font-weight: 600; font-size: 24px; }
+.mp-poin .mp-i-chev { position: absolute; left: 375px; top: 50%; transform: translateY(-50%); }
+@media (max-width: 1360px) {
+  .mp-poin { position: static; margin: 0 0 24px auto; }
 }
 
-/* ---------- Isi ---------- */
-.mp-page { padding-top: 24px; }
-.mp-tabs { display: flex; flex-wrap: wrap; gap: 6px 26px; }
-.mp-tab {
-  min-height: 44px; padding: 0 2px; border: 0; border-bottom: 3px solid transparent; background: transparent;
-  font: 500 15px "Poppins", sans-serif; color: var(--mp-ink); cursor: pointer;
-}
-.mp-tab:hover { color: var(--mp-green); }
-.mp-tab[aria-pressed="true"] { border-bottom-color: var(--mp-green); color: var(--mp-green); font-weight: 700; }
-.mp-tab:focus-visible { outline: 3px solid var(--mp-green); outline-offset: 2px; }
-.mp-status { margin: 0; min-height: 0; font-size: 14px; }
-.mp-status:not(:empty) { margin-top: 8px; }
+/* tab kategori produk */
+.mp-tabs { display: flex; flex-wrap: wrap; gap: 50px; padding: 26px 61px 0; font-weight: 500; font-size: 22px; line-height: 28px; }
+.mp-tabs span { position: relative; padding-bottom: 6px; }
+.mp-tabs .is-on { font-weight: 700; color: #009345; }
+.mp-tabs .is-on::after { content: ""; position: absolute; left: 12px; bottom: 0; width: 55px; height: 3px; background: #009345; }
 
-.mp-grid { list-style: none; margin: 20px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
-.mp-grid > li[hidden] { display: none; }
-.mp-card {
-  display: flex; flex-direction: column; overflow: hidden; height: 100%;
-  border: 1.5px solid var(--mp-orange); border-radius: 12px; background: #fff;
-  color: var(--mp-ink); text-decoration: none; transition: transform .15s ease, box-shadow .15s ease;
-}
-.mp-card:hover { transform: translateY(-3px); box-shadow: 0 6px 14px rgba(0,0,0,.18); }
-.mp-card:focus-visible { outline: 3px solid var(--mp-green); outline-offset: 2px; }
-.mp-thumb, .mp-img { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; width: 100%; background: #A6A6A6; object-fit: cover; }
-.mp-thumb svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.mp-thumb b { position: relative; color: #fff; font-size: clamp(13px, 1.6vw, 18px); font-weight: 700; letter-spacing: .02em; }
-.mp-info { display: flex; flex-direction: column; gap: 4px; padding: 8px 12px 12px; }
-.mp-name { font-size: 15px; font-weight: 500; }
-.mp-price { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; color: var(--mp-price); }
-.mp-rate { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
-.mp-empty { margin: 32px 0 0; text-align: center; }
-.mp-empty[hidden] { display: none; }
-
-@media (prefers-reduced-motion: reduce) { .mp-card { transition: none; } .mp-card:hover { transform: none; } }
-
-/* ---------- Responsive ---------- */
-@media (max-width: 1000px) {
-  .mp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-}
-@media (max-width: 860px) {
-  .mp-hero__inner { grid-template-columns: 1fr; padding: 28px 20px; }
-  .mp-points { order: -1; justify-self: start; }
-}
-@media (max-width: 600px) {
-  .mp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-  .mp-cats { gap: 10px; }
-  .mp-searchrow { gap: 12px; }
-  .mp-points { flex-wrap: wrap; }
-}
+/* kartu produk */
+.mp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 56px; padding: 26px 60px 60px; }
+.mp-card { background: #fff; border: 1px solid #fe7f2d; border-radius: 20px; padding-bottom: 10px; }
+.mp-thumb { display: block; width: calc(100% + 2px); height: 234px; margin: -1px -1px 0;
+  object-fit: cover; border-radius: 20px 20px 0 0; }
+.mp-nm { margin: 5px 0 0 15px; font-weight: 500; font-size: 22px; line-height: 27px; }
+.mp-pr { display: flex; align-items: center; gap: 2px; height: 40px; margin-left: 9px;
+  font-weight: 800; font-size: 24px; color: #fcc01e; }
+.mp-pr img { width: 40px; height: 40px; }
+.mp-btn { display: block; height: 35.5px; margin: 0 20px; border: 2.318px solid #df712a; border-radius: 11.589px;
+  background: #fe7f2d; color: #000; text-align: center; text-decoration: none;
+  font: 400 18.542px/31px 'Plus Jakarta Sans', sans-serif; }

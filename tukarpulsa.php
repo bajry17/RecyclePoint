@@ -1,128 +1,123 @@
 <?php
-$namaUser = 'Dudung';
-$poinUser = 999999;
+if (session_status() === PHP_SESSION_NONE) session_start();
 
-$rpPerPoin    = 100;
-$daftarNominal = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 150000];
-
-if (!function_exists('e')) {
-    function e($teks) { return htmlspecialchars((string)$teks, ENT_QUOTES, 'UTF-8'); }
+// ---- data user dari database (sesuaikan nama db, tabel, kolom) ----
+$id_user = $_SESSION['id_user'] ?? 1;
+$poin_user = 999999; // nilai cadangan jika database tidak terbaca
+mysqli_report(MYSQLI_REPORT_OFF);
+$db = @new mysqli('localhost', 'root', '', 'recyclepoint');
+if (!$db->connect_errno && ($st = $db->prepare('SELECT poin FROM users WHERE id_user = ?'))) {
+    $st->bind_param('i', $id_user);
+    $st->execute();
+    $st->bind_result($p);
+    if ($st->fetch()) $poin_user = (int)$p;
+    $st->close();
 }
+
+$rp_per_poin = 100; // 1 poin = Rp100
+$nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 150000];
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tukar Pulsa | RecyclePoint</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="tukarpulsa.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tukar Pulsa | RecyclePoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tukarpulsa.css">
+<script src="header/sidebar.js" defer></script>
 </head>
 <body>
+<?php include 'header/top_nav.php'; ?>
 
-<?php include 'header/top_nav.php' ?>
+<div class="tp">
+  <section class="tp-hero">
+    <div class="tp-hero-in">
+      <h1 class="tp-h1">Tukar Poin, Dapatkan <em>Lebih Banyak!</em></h1>
+      <p class="tp-sub">Gunakan poin untuk kebutuhan anda</p>
 
-<main>
-  <section class="hero">
-    <div class="hero_inner">
-      <h1 class="hero_title">Tukar Poin, Dapatkan <span class="accent">Lebih Banyak!</span></h1>
-      <p class="hero_sub">Gunakan poin untuk kebutuhan anda</p>
-
-      <nav class="pills" aria-label="Kategori market">
-        <a class="pill" href="marketpoin.php">
-          <span class="ico" style="--icon:url('images/leaf.svg')"></span><span>Produk Daur Ulang</span>
-        </a>
-        <a class="pill pill--active" href="tukarpulsa.php">
-          <span class="ico" style="--icon:url('images/pulsa.svg')"></span><span>Pulsa</span>
-        </a>
-        <a class="pill" href="#">
-          <span class="ico" style="--icon:url('images/ewallet.svg')"></span><span>E-wallet</span>
-        </a>
-        <a class="pill" href="#">
-          <span class="ico" style="--icon:url('images/voucher.svg')"></span><span>Voucher</span>
-        </a>
-      </nav>
-
-      <div class="points_card">
-        <div class="points_info">
-          <img src="images/coin.svg" alt="" class="points_coin">
-          <div>
-            <div class="points_label">Poin Anda</div>
-            <div class="points_value"><?= e($poinUser) ?></div>
-          </div>
-        </div>
-        <span class="points_divider"></span>
-        <a class="points_history" href="#">
-          <span>Riwayat poin</span>
-          <span class="ico" style="--icon:url('images/chevron-right.svg')"></span>
-        </a>
+      <div class="tp-pills">
+        <a class="tp-pill" href="marketpoin.php"><i class="tp-ico tp-i-leaf"></i>Produk Daur Ulang</a>
+        <span class="tp-pill is-active"><i class="tp-ico tp-i-phone"></i>Pulsa</span>
+        <a class="tp-pill" href="tukarewallet.php"><i class="tp-ico tp-i-wallet"></i>E-wallet</a>
       </div>
+    </div>
+
+    <div class="tp-poin">
+      <div class="tp-poin-left">
+        <img src="images/coin.svg" alt="">
+        <div>
+          <div class="tp-poin-label">Poin Anda</div>
+          <div class="tp-poin-val"><?= (int)$poin_user ?></div>
+        </div>
+      </div>
+      <span class="tp-poin-divider"></span>
+      <span class="tp-poin-hist">Riwayat poin</span>
+      <i class="tp-ico tp-i-chev"></i>
     </div>
   </section>
 
-  <form class="topup" id="formPulsa" action="penukaranpulsa.php" method="get" autocomplete="off">
-    <h2 class="topup_title">Top-up Pulsa dengan Poin</h2>
+  <form class="tp-form" id="tpForm" action="konfirmasipulsa.php" method="get">
+    <div class="tp-wrap">
+      <h2>Top-up Pulsa dengan Poin</h2>
 
-    <label class="field_label" for="nomor">Nomor Telepon</label>
-    <input class="field_input" type="tel" inputmode="numeric" id="nomor" name="nomor"
-           placeholder="Silahkan Masukkan Nomor Teleponmu" maxlength="15">
+      <label class="tp-label" for="tpNomor">Nomor Telepon</label>
+      <input class="tp-input" type="tel" id="tpNomor" name="nomor" inputmode="numeric" maxlength="13"
+             placeholder="Silahkan Masukkan Nomor Teleponmu" autocomplete="off">
 
-    <div class="nominal_grid" role="radiogroup" aria-label="Pilih nominal pulsa">
-      <?php foreach ($daftarNominal as $nom): $p = intdiv($nom, $rpPerPoin); ?>
-        <label class="nominal">
-          <input type="radio" name="nominal" value="<?= $nom ?>" data-poin="<?= $p ?>">
-          <span class="nominal_box">
-            <span class="nominal_rp"><?= number_format($nom, 0, ',', '.') ?></span>
-            <span class="nominal_poin"><img src="images/coin.svg" alt=""><?= $p ?></span>
-          </span>
-        </label>
-      <?php endforeach; ?>
+      <input type="hidden" id="tpNominal" name="nominal" value="">
+
+      <div class="tp-opts">
+        <?php foreach ($nominal_list as $n): ?>
+        <button type="button" class="tp-opt" data-nominal="<?= $n ?>" aria-pressed="false">
+          <span><?= number_format($n, 0, ',', '.') ?></span>
+          <span class="tp-hrg"><img src="images/coin.svg" alt=""><?= $n / $rp_per_poin ?></span>
+        </button>
+        <?php endforeach; ?>
+      </div>
     </div>
 
-    <input type="hidden" name="poin" id="poin" value="">
-
-    <div class="checkout">
-      <div class="checkout_total">
-        <span class="checkout_label">Total Poin:</span>
-        <img src="images/coin.svg" alt="">
-        <span class="checkout_value" id="totalPoin">0</span>
-      </div>
-      <button type="submit" class="checkout_btn" id="btnTukar" disabled>Tukar Sekarang</button>
+    <div class="tp-foot">
+      <span class="tp-tot">Total Poin:</span>
+      <span class="tp-tp"><img src="images/coin.svg" alt=""><span id="tpTotal">0</span></span>
+      <button type="submit" class="tp-btn" id="tpBtn" disabled>Tukar Sekarang</button>
     </div>
   </form>
-</main>
+</div>
 
-<script src="header/sidebar.js" defer></script>
 <script>
-(function () {
-  var MIN_DIGITS = 1;
+const RP_PER_POIN = <?= (int)$rp_per_poin ?>;
+const POIN_USER = <?= (int)$poin_user ?>;
 
-  var form   = document.getElementById('formPulsa');
-  var nomor  = document.getElementById('nomor');
-  var poin   = document.getElementById('poin');
-  var total  = document.getElementById('totalPoin');
-  var btn    = document.getElementById('btnTukar');
+const opts = document.querySelectorAll('.tp-opt');
+const nomor = document.getElementById('tpNomor');
+const nominal = document.getElementById('tpNominal');
+const totalEl = document.getElementById('tpTotal');
+const btn = document.getElementById('tpBtn');
+let terpilih = 0;
 
-  function sync() {
-    var dipilih = form.querySelector('input[name="nominal"]:checked');
-    var digit   = nomor.value.replace(/\D/g, '');
+function cek() {
+  const nomorOk = /^08\d{8,11}$/.test(nomor.value);
+  const poinCukup = terpilih / RP_PER_POIN <= POIN_USER;
+  btn.disabled = !(nomorOk && terpilih > 0 && poinCukup);
+}
 
-    total.textContent = dipilih ? dipilih.dataset.poin : '0';
-    poin.value        = dipilih ? dipilih.dataset.poin : '';
-    btn.disabled      = !(dipilih && digit.length >= MIN_DIGITS);
-  }
+opts.forEach(o => o.addEventListener('click', () => {
+  opts.forEach(x => { x.classList.remove('is-selected'); x.setAttribute('aria-pressed', 'false'); });
+  o.classList.add('is-selected');
+  o.setAttribute('aria-pressed', 'true');
+  terpilih = parseInt(o.dataset.nominal, 10);
+  nominal.value = terpilih;
+  totalEl.textContent = terpilih / RP_PER_POIN;
+  cek();
+}));
 
-  nomor.addEventListener('input', function () {
-    this.value = this.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
-    sync();
-  });
-  form.addEventListener('change', sync);
-  form.addEventListener('submit', function (e) { sync(); if (btn.disabled) e.preventDefault(); });
-  window.addEventListener('pageshow', sync);
-  sync();
-})();
+nomor.addEventListener('input', () => {
+  nomor.value = nomor.value.replace(/\D/g, '').slice(0, 13);
+  cek();
+});
 </script>
 </body>
 </html>
