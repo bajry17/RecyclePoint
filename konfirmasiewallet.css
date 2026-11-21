@@ -1,6 +1,6 @@
 /* ===== topbar (class dari top_nav.php) ===== */
 :root { --line: #e2e8d5; --ink: #2e4704; }
-body { margin: 0; background: #f5fbe6; }
+body { margin: 0; background: #f5fbe6; font-family: 'Plus Jakarta Sans', sans-serif; }
 
 .navbar {
   display: flex;
