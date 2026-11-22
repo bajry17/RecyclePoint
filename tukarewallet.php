@@ -1,21 +1,11 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/tukar_helper.php';
 
-// ---- data user dari database (sesuaikan nama db, tabel, kolom) ----
-$id_user = $_SESSION['id_user'] ?? 1;
-$poin_user = 999999; // nilai cadangan jika database tidak terbaca
-mysqli_report(MYSQLI_REPORT_OFF);
-$db = @new mysqli('localhost', 'root', '', 'recyclepoint');
-if (!$db->connect_errno && ($st = $db->prepare('SELECT poin FROM users WHERE id_user = ?'))) {
-    $st->bind_param('i', $id_user);
-    $st->execute();
-    $st->bind_result($p);
-    if ($st->fetch()) $poin_user = (int)$p;
-    $st->close();
-}
+$poin_user   = poin_user($conn, $user_id);
+$flash_error = ambil_flash_error();
 
-$rp_per_poin = 100; // 1 poin = Rp100
-$nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 150000];
+// ---- nominal dan harga poin dari produk_poin (tipe = ewallet) ----
+$nominal_list = daftar_nominal($conn, 'ewallet');
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -54,10 +44,14 @@ $nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 
         </div>
       </div>
       <span class="te-poin-divider"></span>
-      <span class="te-poin-hist">Riwayat poin</span>
-      <i class="te-ico te-i-chev"></i>
+      <a class="te-poin-hist" href="riwayat_transaksi.php">
+        Riwayat poin
+        <i class="te-ico te-i-chev"></i>
+      </a>
     </div>
   </section>
+
+  <?php if ($flash_error !== ''): ?><div class="rp-alert rp-alert--err" role="alert"><?= e($flash_error) ?></div><?php endif; ?>
 
   <form class="te-form" action="konfirmasiewallet.php" method="get">
     <div class="te-wrap">
@@ -66,16 +60,13 @@ $nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 
       <div class="te-app">
         <p>Pilih aplikasi e-wallet kamu</p>
         <div class="te-app-opts">
+          <?php foreach (EWALLET_APP as $i => $app_nama): ?>
           <label class="te-radio">
-            <input type="radio" name="app" value="Gopay" checked>
+            <input type="radio" name="app" value="<?= e($app_nama) ?>"<?= $i === 0 ? ' checked' : '' ?>>
             <span class="te-dot"></span>
-            <img src="images/gopay.svg" alt="Gopay">
+            <img src="images/<?= e(strtolower($app_nama)) ?>.svg" alt="<?= e($app_nama) ?>">
           </label>
-          <label class="te-radio">
-            <input type="radio" name="app" value="Dana">
-            <span class="te-dot"></span>
-            <img src="images/dana.svg" alt="Dana">
-          </label>
+          <?php endforeach; ?>
 </div>
       </div>
 
@@ -86,10 +77,10 @@ $nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 
       <input type="hidden" id="teNominal" name="nominal" value="">
 
       <div class="te-opts">
-        <?php foreach ($nominal_list as $n): ?>
-        <button type="button" class="te-opt" data-nominal="<?= $n ?>" aria-pressed="false">
+        <?php foreach ($nominal_list as $row): $n = (int) $row['nominal']; ?>
+        <button type="button" class="te-opt" data-nominal="<?= $n ?>" data-poin="<?= (int) $row['harga_poin'] ?>" aria-pressed="false">
           <span><?= number_format($n, 0, ',', '.') ?></span>
-          <span class="te-hrg"><img src="images/coin.svg" alt=""><?= $n / $rp_per_poin ?></span>
+          <span class="te-hrg"><img src="images/coin.svg" alt=""><?= (int) $row['harga_poin'] ?></span>
         </button>
         <?php endforeach; ?>
       </div>
@@ -104,7 +95,6 @@ $nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 
 </div>
 
 <script>
-const RP_PER_POIN = <?= (int)$rp_per_poin ?>;
 const POIN_USER = <?= (int)$poin_user ?>;
 
 const opts = document.querySelectorAll('.te-opt');
@@ -113,10 +103,11 @@ const nominal = document.getElementById('teNominal');
 const totalEl = document.getElementById('teTotal');
 const btn = document.getElementById('teBtn');
 let terpilih = 0;
+let poinTerpilih = 0;
 
 function cek() {
   const nomorOk = /^08\d{8,11}$/.test(nomor.value);
-  const poinCukup = terpilih / RP_PER_POIN <= POIN_USER;
+  const poinCukup = poinTerpilih <= POIN_USER;
   btn.disabled = !(nomorOk && terpilih > 0 && poinCukup);
 }
 
@@ -125,8 +116,9 @@ opts.forEach(o => o.addEventListener('click', () => {
   o.classList.add('is-selected');
   o.setAttribute('aria-pressed', 'true');
   terpilih = parseInt(o.dataset.nominal, 10);
+  poinTerpilih = parseInt(o.dataset.poin, 10);
   nominal.value = terpilih;
-  totalEl.textContent = terpilih / RP_PER_POIN;
+  totalEl.textContent = poinTerpilih;
   cek();
 }));
 

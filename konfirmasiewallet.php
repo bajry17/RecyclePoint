@@ -1,40 +1,55 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/tukar_helper.php';
 
-// ---- data user dari database (sesuaikan nama db, tabel, kolom) ----
-$id_user = $_SESSION['id_user'] ?? 1;
-$poin_user = 999999; // nilai cadangan jika database tidak terbaca
-mysqli_report(MYSQLI_REPORT_OFF);
-$db = @new mysqli('localhost', 'root', '', 'recyclepoint');
-if (!$db->connect_errno && ($st = $db->prepare('SELECT poin FROM users WHERE id_user = ?'))) {
-    $st->bind_param('i', $id_user);
-    $st->execute();
-    $st->bind_result($p);
-    if ($st->fetch()) $poin_user = (int)$p;
-    $st->close();
-}
+$src     = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
+$app     = (string) ($src['app'] ?? '');
+$nomor   = (string) ($src['nomor'] ?? '');
+$nominal = (int) ($src['nominal'] ?? 0);
 
-$rp_per_poin = 100;
-$nominal_valid = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 150000];
-$app_valid = ['Gopay', 'Dana'];
+// ---- harga poin dari database; data tidak valid / dibuka langsung -> tampilan contoh dari database ----
+$app_ok   = in_array($app, EWALLET_APP, true);
+$nomor_ok = (bool) preg_match('/^08\d{8,11}$/', $nomor);
+$produk   = produk_nominal($conn, 'ewallet', $nominal);
+$langsung = !($app_ok && $nomor_ok && $produk);
+if (!$produk) {
+    $produk = nominal_default($conn, 'ewallet');
+}
+if (!$produk) {
+    $_SESSION['flash_error'] = 'Data nominal e-wallet belum tersedia.';
+    header('Location: tukarewallet.php');
+    exit;
+}
+if (!$app_ok) {
+    $app = EWALLET_APP[0];
+}
+if (!$nomor_ok) {
+    $nomor = (string) (data_user($conn, $user_id)['no_telepon'] ?? '');
+}
+$nominal = (int) $produk['nominal'];
+$gambar  = 'images/' . strtolower($app) . '.svg'; // gopay.svg atau dana.svg
 
-$app = $_GET['app'] ?? 'Gopay';
-$nomor = $_GET['nomor'] ?? '';
-$nominal = (int)($_GET['nominal'] ?? 0);
-
-// kalau halaman dibuka langsung atau datanya tidak valid, pakai nilai default
-if (!in_array($app, $app_valid, true)) {
-    $app = 'Gopay';
-}
-if (!preg_match('/^08\d{8,11}$/', $nomor)) {
-    $nomor = '0812121212121';
-}
-if (!in_array($nominal, $nominal_valid, true)) {
-    $nominal = 5000;
-}
-$total_poin = $nominal / $rp_per_poin;
+$poin_user    = poin_user($conn, $user_id);
+$total_poin   = (int) $produk['harga_poin'];
 $poin_sesudah = $poin_user - $total_poin;
-$gambar = 'images/' . strtolower($app) . '.svg'; // gopay.svg atau dana.svg
+
+$err = '';
+if ($langsung)             { $err = 'Halaman ini hanya contoh tampilan. Pilih dulu dari halaman sebelumnya untuk menukar.'; }
+elseif ($poin_sesudah < 0) { $err = 'Poin kamu belum cukup untuk nominal ini.'; }
+
+$error = $err;
+if ($error === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['csrf'], (string) ($_POST['csrf'] ?? ''))) {
+        $error = 'Sesi tidak valid. Muat ulang halaman lalu coba lagi.';
+    } else {
+        $hasil = simpan_penukaran($conn, $user_id, (int) $produk['id'], 'ewallet', ['nomor_tujuan' => $nomor, 'penyedia' => $app]);
+        if ($hasil['ok']) {
+            $_SESSION['flash'] = 'Penukaran berhasil. Kode: ' . $hasil['kode'];
+            header('Location: marketpoin.php');
+            exit;
+        }
+        $error = $hasil['pesan'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -82,7 +97,14 @@ $gambar = 'images/' . strtolower($app) . '.svg'; // gopay.svg atau dana.svg
     </div>
   </div>
 
-  <div class="pp-btn-wrap"><a class="pp-btn" href="tukarewallet.php">Tukar Sekarang</a></div>
+  <?php if ($error !== ''): ?><div class="rp-alert rp-alert--err" role="alert"><?= e($error) ?></div><?php endif; ?>
+  <form class="pp-btn-wrap" method="post" action="konfirmasiewallet.php">
+    <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+    <input type="hidden" name="app" value="<?= e($app) ?>">
+    <input type="hidden" name="nomor" value="<?= e($nomor) ?>">
+    <input type="hidden" name="nominal" value="<?= (int) $nominal ?>">
+    <button type="submit" class="pp-btn"<?= $error !== '' ? ' disabled' : '' ?>>Tukar Sekarang</button>
+  </form>
 </div>
 
 </body>
