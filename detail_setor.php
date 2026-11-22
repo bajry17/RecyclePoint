@@ -32,9 +32,8 @@ $stmt->close();
 
 if ($s) {
     $stmt = $conn->prepare(
-        'SELECT j.nama AS jenis, COALESCE(i.nama_item, j.nama) AS nama, i.berat_kg, i.poin_didapat
+        'SELECT jenis_sampah AS nama, i.berat_kg, i.poin_didapat
            FROM setoran_item i
-      LEFT JOIN jenis_sampah j ON j.id = i.jenis_sampah
           WHERE i.setoran_id = ?
        ORDER BY i.id'
     );

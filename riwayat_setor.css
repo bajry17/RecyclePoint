@@ -25,26 +25,8 @@
 .rs-sum__ico--star { background: #86AAA6; color: #1D7A45; box-shadow: inset 0 0 0 3px #1D5A38; }
 .rs-summary__line { width: 1px; align-self: stretch; margin: 0 56px; background: rgba(255,255,255,.4); }
 
-/* ---------- Filter ---------- */
-.rs-tabs { display: flex; flex-wrap: wrap; gap: 16px 30px; margin: 34px 0 20px; }
-.rs-tab {
-  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
-  min-height: 55px; min-width: 115px; padding: 0 24px;
-  border: 0; border-radius: 12px; background: var(--rs-teal-soft); color: #fff;
-  font: 600 15px "Plus Jakarta Sans", sans-serif; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,.25);
-}
-.rs-tab:hover { background: #4E8B86; }
-.rs-tab[aria-pressed="true"] { background: var(--rs-orange); color: var(--rs-ink); }
-.rs-count {
-  display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 6px;
-  border-radius: 999px; background: #fff; color: var(--rs-ink); font-size: 15px; font-weight: 500;
-}
-.rs-tab:focus-visible, .rs-row:focus-visible { outline: 3px solid var(--rs-ink); outline-offset: 2px; box-shadow: 0 0 0 5px #fff; }
-.rs-status-msg { margin: 0; font-size: 14px; }
-.rs-status-msg:not(:empty) { margin-bottom: 12px; }
-
 /* ---------- Daftar ---------- */
-.rs-list-card { background: #fff; border-radius: 14px; box-shadow: 0 3px 8px rgba(0,0,0,.22); overflow: hidden; }
+.rs-list-card { background: #fff; border-radius: 14px; box-shadow: 0 3px 8px rgba(0,0,0,.22); overflow: hidden;}
 .rs-list { list-style: none; margin: 0; padding: 0; }
 .rs-list > li { border-bottom: 1px solid var(--rs-line); }
 .rs-list > li:last-child { border-bottom: 0; }
@@ -118,4 +100,6 @@
   .rs-cell { min-height: 0; padding-left: 0; border-left: 0; font-size: 15px; gap: 8px; }
   .rs-status { padding-left: 0; }
   .rs-badge { font-size: 14px; padding: 4px 12px; }
+
+
 }
