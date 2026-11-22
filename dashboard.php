@@ -65,11 +65,11 @@ function getRingkasanUser(int $userId): array
     ];
 }
 
-// Setoran terbaru: id, kode, status, waktu_setor, total_berat_kg, total_poin, bank_sampah, jenis_sampah
+// Setoran terbaru: id, kode, waktu_setor, total_berat_kg, total_poin, bank_sampah
 function getSetoranTerbaru(int $userId, int $limit = 5): array
 {
     return dbAll(
-        'SELECT id, kode, status, waktu_setor, total_berat_kg, total_poin, bank_sampah, jenis_sampah
+        'SELECT id, kode, waktu_setor, total_berat_kg, total_poin, bank_sampah
            FROM v_riwayat_setor
           WHERE user_id = ?
           ORDER BY waktu_setor DESC
@@ -95,15 +95,16 @@ function getNotifTerbaru(int $userId, int $limit = 3): array
 function getStatistikPerJenis(int $userId): array
 {
     return dbAll(
-        "SELECT j.nama AS jenis, SUM(i.berat_kg) AS total_kg, SUM(i.poin_didapat) AS total_poin
-           FROM setoran s
-           JOIN setoran_item i ON i.setoran_id = s.id
-           JOIN jenis_sampah j ON j.id = i.jenis_sampah
-          WHERE s.user_id = ? AND s.status = 'berhasil'
-          GROUP BY j.id, j.nama
-          ORDER BY total_kg DESC",
-        'i', [$userId]
-    );
+    "SELECT i.jenis_sampah AS jenis,
+            SUM(i.berat_kg) AS total_kg,
+            SUM(i.poin_didapat) AS total_poin
+       FROM setoran s
+       JOIN setoran_item i ON i.setoran_id = s.id
+      WHERE s.user_id = ?
+      GROUP BY i.jenis_sampah
+      ORDER BY total_kg DESC",
+    'i', [$userId]
+);
 }
 
 // Total kg & poin per bulan (untuk chart tren), default 6 bulan terakhir.
@@ -116,7 +117,6 @@ function getStatistikBulanan(int $userId, int $jumlahBulan = 6): array
                 COUNT(*)            AS jumlah_setoran
            FROM setoran
           WHERE user_id = ?
-            AND status = 'berhasil'
             AND waktu_setor >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL ? MONTH)
           GROUP BY bulan
           ORDER BY bulan ASC",
@@ -127,8 +127,8 @@ function getStatistikBulanan(int $userId, int $jumlahBulan = 6): array
 // Alamat user: alamat_rumah, kode_pos
 function getProfilUser(int $userId): array
 {
-    return dbRow('SELECT alamat_rumah, kode_pos FROM users WHERE id = ?', 'i', [$userId])
-        ?? ['alamat_rumah' => null, 'kode_pos' => null];
+    return dbRow('SELECT alamat_rumah, provinsi, kecamatan, kota, kode_pos FROM users WHERE id = ?', 'i', [$userId])
+        ?? ['alamat_rumah' => null,'provinsi' => null,'kota' => null,'kecamatan' => null, 'kode_pos' => null];
 }
 
 // Jumlah hadiah yang tersedia di marketplace poin (aktif & stok ada)
@@ -144,7 +144,6 @@ function getBankSampahTerdekat(int $userId): ?array
         "SELECT b.id, b.nama, b.alamat, b.jam_operasional
            FROM bank_sampah b
            JOIN users u ON u.id = ?
-          WHERE b.status = 'aktif'
           ORDER BY COALESCE(b.kode_pos = u.kode_pos, 0) DESC,
                    COALESCE(b.kota_id = u.kota, 0) DESC,
                    b.id ASC
@@ -207,7 +206,22 @@ $bankTerdekat = getBankSampahTerdekat($userId);  // panel lokasi bank sampah
     <!-- Sapaan -->
     <section class="dash-greet">
         <h2>Halo, <?= htmlspecialchars($ringkasan['nama_panggilan']) ?>!</h2>
-        <p><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a7.5 7.5 0 0 0-7.5 7.5C4.5 15 12 22 12 22s7.5-7 7.5-12.5A7.5 7.5 0 0 0 12 2zm0 10.5a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg><?php if (!empty($profil['alamat_rumah'])): ?><?= htmlspecialchars($profil['alamat_rumah']) ?><?= !empty($profil['kode_pos']) ? ', ' . htmlspecialchars($profil['kode_pos']) : '' ?><?php else: ?>Alamat belum diisi<?php endif; ?></p>
+        <p>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12 2a7.5 7.5 0 0 0-7.5 7.5C4.5 15 12 22 12 22s7.5-7 7.5-12.5A7.5 7.5 0 0 0 12 2zm0 10.5a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+          </svg>
+          <?php
+          $bagianAlamat = array_filter([
+              $profil['alamat_rumah'] ?? '',
+              !empty($profil['kecamatan']) ? 'Kec. ' . $profil['kecamatan'] : '',
+              $profil['kota'] ?? '',
+              $profil['provinsi'] ?? '',
+              !empty($profil['kode_pos']) ? $profil['kode_pos'] : '',
+          ]);
+
+          echo htmlspecialchars(implode(', ', $bagianAlamat), ENT_QUOTES, 'UTF-8');
+          ?>
+        </p>
       </section>
 
     <!-- Statistik -->
@@ -270,8 +284,7 @@ $bankTerdekat = getBankSampahTerdekat($userId);  // panel lokasi bank sampah
              <?php else: ?>
               <?php foreach (array_slice($setoranBaru, 0, 2) as $s): ?>
             <li>
-              <div><strong>Setor Sampah <?= htmlspecialchars($s['jenis_sampah']) ?></strong><span><?= formatTanggal($s['waktu_setor'], false) ?> &nbsp; <?= date('H.i', strtotime($s['waktu_setor'])) ?></span></div>
-              <b><?= $s['status'] === 'berhasil' ? '+' . number_format((int) $s['total_poin'], 0, ',', '.') . ' Poin' : htmlspecialchars(ucfirst($s['status'])) ?></b>
+              <div><span><?= formatTanggal($s['waktu_setor'], false) ?> &nbsp; <?= date('H.i', strtotime($s['waktu_setor'])) ?></span></div>
             </li>
               <?php endforeach; ?>
             <?php endif; ?>
