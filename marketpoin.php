@@ -1,26 +1,26 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/tukar_helper.php';
 
-// ---- data user dari database (sesuaikan nama db, tabel, kolom) ----
-$id_user = $_SESSION['id_user'] ?? 1;
-$poin_user = 999999; // nilai cadangan jika database tidak terbaca
-mysqli_report(MYSQLI_REPORT_OFF);
-$db = @new mysqli('localhost', 'root', '', 'recyclepoint');
-if (!$db->connect_errno && ($st = $db->prepare('SELECT poin FROM users WHERE id_user = ?'))) {
-    $st->bind_param('i', $id_user);
-    $st->execute();
-    $st->bind_result($p);
-    if ($st->fetch()) $poin_user = (int)$p;
-    $st->close();
+$poin_user   = poin_user($conn, $user_id);
+$flash       = ambil_flash();
+$flash_error = ambil_flash_error();
+
+// ---- produk daur ulang dari database ----
+$produk_list = [];
+$st = $conn->prepare("SELECT id, nama, harga_poin, kategori, foto
+                        FROM produk_poin
+                       WHERE tipe = 'produk_daur_ulang' AND aktif = 1
+                       ORDER BY id");
+$st->execute();
+foreach ($st->get_result()->fetch_all(MYSQLI_ASSOC) as $r) {
+    $produk_list[(int) $r['id']] = [
+        'nama'     => $r['nama'],
+        'poin'     => (int) $r['harga_poin'],
+        'kategori' => $r['kategori'],
+        'gambar'   => foto_aman($r['foto']),
+    ];
 }
-
-// ---- data produk (sementara di PHP; array yang sama ada di konfirmasidaurulang.php) ----
-$produk_list = [
-    1 => ['nama' => 'Jurnal Handmade',    'poin' => 100, 'kategori' => 'kertas',  'gambar' => 'jurnal.jpg'],
-    2 => ['nama' => 'Gantungan Kunci',    'poin' => 70,  'kategori' => 'logam',   'gambar' => 'gantungan-kunci.svg'],
-    3 => ['nama' => 'Hanger Baju 5 pcs',  'poin' => 250, 'kategori' => 'plastik', 'gambar' => 'hanger.svg'],
-    4 => ['nama' => 'Tissue Box Kirby',   'poin' => 150, 'kategori' => 'kardus',  'gambar' => 'tissue-box.svg'],
-];
+$st->close();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -64,8 +64,10 @@ $produk_list = [
         </div>
       </div>
       <span class="mp-poin-divider"></span>
-      <span class="mp-poin-hist">Riwayat poin</span>
-      <i class="mp-ico mp-i-chev"></i>
+      <a class="mp-poin-hist" href="riwayat_transaksi.php">
+        Riwayat poin
+        <i class="mp-ico mp-i-chev"></i>
+      </a>
     </div>
   </section>
 
@@ -78,10 +80,13 @@ $produk_list = [
     <button type="button" class="mp-tab" data-kat="lainnya">Lainnya</button>
   </div>
 
+  <?php if ($flash !== ''): ?><div class="rp-alert rp-alert--ok" role="status"><?= e($flash) ?></div><?php endif; ?>
+  <?php if ($flash_error !== ''): ?><div class="rp-alert rp-alert--err" role="alert"><?= e($flash_error) ?></div><?php endif; ?>
+
   <div class="mp-grid">
     <?php foreach ($produk_list as $id => $p): ?>
     <div class="mp-card" data-kat="<?= htmlspecialchars($p['kategori']) ?>" data-nama="<?= htmlspecialchars(mb_strtolower($p['nama'])) ?>">
-      <img class="mp-thumb" src="images/<?= htmlspecialchars($p['gambar']) ?>" alt="<?= htmlspecialchars($p['nama']) ?>">
+      <img class="mp-thumb" src="<?= e($p['gambar']) ?>" alt="<?= htmlspecialchars($p['nama']) ?>">
       <div class="mp-nm"><?= htmlspecialchars($p['nama']) ?></div>
       <div class="mp-pr"><img src="images/coin.svg" alt=""><?= (int)$p['poin'] ?></div>
       <a class="mp-btn" href="konfirmasidaurulang.php?id=<?= (int)$id ?>">Tukar Sekarang</a>

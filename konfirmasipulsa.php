@@ -1,54 +1,56 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/tukar_helper.php';
 
-// ---- data user dari database (sesuaikan nama db, tabel, kolom) ----
-$id_user = $_SESSION['id_user'] ?? 1;
-$poin_user = 999999; // nilai cadangan jika database tidak terbaca
-mysqli_report(MYSQLI_REPORT_OFF);
-$db = @new mysqli('localhost', 'root', '', 'recyclepoint');
-if (!$db->connect_errno && ($st = $db->prepare('SELECT poin FROM users WHERE id_user = ?'))) {
-    $st->bind_param('i', $id_user);
-    $st->execute();
-    $st->bind_result($p);
-    if ($st->fetch()) $poin_user = (int)$p;
-    $st->close();
+$src     = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
+$nomor   = (string) ($src['nomor'] ?? '');
+$nominal = (int) ($src['nominal'] ?? 0);
+
+// ---- harga poin dari database; data tidak valid / dibuka langsung -> tampilan contoh dari database ----
+$produk   = produk_nominal($conn, 'pulsa', $nominal);
+$nomor_ok = (bool) preg_match('/^08\d{8,11}$/', $nomor);
+$langsung = !($produk && $nomor_ok);
+if (!$produk) {
+    $produk = nominal_default($conn, 'pulsa');
 }
-
-$rp_per_poin = 100;
-$nominal_valid = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 150000];
-
-$nomor = $_GET['nomor'] ?? '';
-$nominal = (int)($_GET['nominal'] ?? 0);
-
-// kalau halaman dibuka langsung atau datanya tidak valid, pakai nilai default
-if (!preg_match('/^08\d{8,11}$/', $nomor)) {
-    $nomor = '0812121212121';
+if (!$produk) {
+    $_SESSION['flash_error'] = 'Data nominal pulsa belum tersedia.';
+    header('Location: tukarpulsa.php');
+    exit;
 }
-if (!in_array($nominal, $nominal_valid, true)) {
-    $nominal = 5000;
+if (!$nomor_ok) {
+    $nomor = (string) (data_user($conn, $user_id)['no_telepon'] ?? '');
 }
-$total_poin = $nominal / $rp_per_poin;
+$nominal = (int) $produk['nominal'];
+
+// ---- operator dari tabel operator_prefix ----
+$op_nama  = operator_dari_nomor($conn, $nomor);
+$operator = $op_nama ?? 'Operator tidak dikenali';
+$op_key   = $op_nama !== null ? strtolower($op_nama) : '';
+$gambar   = $op_key !== '' ? "images/$op_key.svg" : 'images/Placeholder.png';
+
+$poin_user    = poin_user($conn, $user_id);
+$total_poin   = (int) $produk['harga_poin'];
 $poin_sesudah = $poin_user - $total_poin;
 
-// operator dari 4 digit awal nomor (daftar awalan perlu diverifikasi)
-$operator_peta = [
-    'telkomsel' => ['Telkomsel', ['0811', '0812', '0813', '0821', '0822', '0823', '0851', '0852', '0853']],
-    'indosat'   => ['Indosat',   ['0814', '0815', '0816', '0855', '0856', '0857', '0858']],
-    'xl'        => ['XL',        ['0817', '0818', '0819', '0859', '0877', '0878']],
-    'axis'      => ['Axis',      ['0831', '0832', '0833', '0838']],
-    'tri'       => ['Tri',       ['0895', '0896', '0897', '0898', '0899']],
-    'smartfren' => ['Smartfren', ['0881', '0882', '0883', '0884', '0885', '0886', '0887', '0888', '0889']],
-];
-$op_key = '';
-$operator = 'Operator tidak dikenali';
-foreach ($operator_peta as $key => [$nama_op, $awalan]) {
-    if (in_array(substr($nomor, 0, 4), $awalan, true)) {
-        $op_key = $key;
-        $operator = $nama_op;
-        break;
+$err = '';
+if ($langsung)             { $err = 'Halaman ini hanya contoh tampilan. Pilih dulu dari halaman sebelumnya untuk menukar.'; }
+elseif ($op_nama === null) { $err = 'Operator nomor ini tidak dikenali.'; }
+elseif ($poin_sesudah < 0) { $err = 'Poin kamu belum cukup untuk nominal ini.'; }
+
+$error = $err;
+if ($error === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['csrf'], (string) ($_POST['csrf'] ?? ''))) {
+        $error = 'Sesi tidak valid. Muat ulang halaman lalu coba lagi.';
+    } else {
+        $hasil = simpan_penukaran($conn, $user_id, (int) $produk['id'], 'pulsa', ['nomor_tujuan' => $nomor, 'penyedia' => $op_nama]);
+        if ($hasil['ok']) {
+            $_SESSION['flash'] = 'Penukaran berhasil. Kode: ' . $hasil['kode'];
+            header('Location: marketpoin.php');
+            exit;
+        }
+        $error = $hasil['pesan'];
     }
 }
-$gambar = $op_key !== '' ? "images/$op_key.svg" : 'images/Placeholder.png';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -96,7 +98,13 @@ $gambar = $op_key !== '' ? "images/$op_key.svg" : 'images/Placeholder.png';
     </div>
   </div>
 
-  <div class="pp-btn-wrap"><a class="pp-btn" href="tukarpulsa.php">Tukar Sekarang</a></div>
+  <?php if ($error !== ''): ?><div class="rp-alert rp-alert--err" role="alert"><?= e($error) ?></div><?php endif; ?>
+  <form class="pp-btn-wrap" method="post" action="konfirmasipulsa.php">
+    <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+    <input type="hidden" name="nomor" value="<?= e($nomor) ?>">
+    <input type="hidden" name="nominal" value="<?= (int) $nominal ?>">
+    <button type="submit" class="pp-btn"<?= $error !== '' ? ' disabled' : '' ?>>Tukar Sekarang</button>
+  </form>
 </div>
 
 </body>

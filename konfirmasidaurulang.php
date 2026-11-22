@@ -1,41 +1,53 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/tukar_helper.php';
 
-// ---- data user dari database (sesuaikan nama db, tabel, kolom) ----
-$id_user = $_SESSION['id_user'] ?? 1;
-$poin_user = 999999; // nilai cadangan jika database tidak terbaca
-$no_hp = '0812121212121';
-$alamat = 'Jl. Melati No. 24, Coblong, Kota Bandung, Jawa Barat 40132';
-mysqli_report(MYSQLI_REPORT_OFF);
-$db = @new mysqli('localhost', 'root', '', 'recyclepoint');
-if (!$db->connect_errno && ($st = $db->prepare('SELECT poin, no_hp, alamat, kecamatan, kota, provinsi, kode_pos FROM users WHERE id_user = ?'))) {
-    $st->bind_param('i', $id_user);
-    $st->execute();
-    $st->bind_result($p, $hp, $al, $kec, $kota, $prov, $pos);
-    if ($st->fetch()) {
-        $poin_user = (int)$p;
-        $no_hp = $hp;
-        $alamat = "$al, $kec, $kota, $prov $pos";
-    }
-    $st->close();
+$src = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
+$id  = (int) ($src['id'] ?? 0);
+
+// ---- produk dari database; id tidak valid / dibuka langsung -> produk pertama sebagai contoh ----
+$p = produk_daur_ulang($conn, $id);
+$langsung = !$p;
+if ($langsung) {
+    $p = produk_daur_ulang($conn);
 }
+if (!$p) {
+    $_SESSION['flash_error'] = 'Belum ada produk daur ulang.';
+    header('Location: marketpoin.php');
+    exit;
+}
+$produk = ['nama' => $p['nama'], 'gambar' => foto_aman($p['foto'])];
 
-// ---- data produk (sementara di PHP; array yang sama ada di marketpoin.php) ----
-$produk_list = [
-    1 => ['nama' => 'Jurnal Handmade',    'poin' => 100, 'kategori' => 'kertas',  'gambar' => 'jurnal.jpg'],
-    2 => ['nama' => 'Gantungan Kunci',    'poin' => 70,  'kategori' => 'logam',   'gambar' => 'gantungan-kunci.svg'],
-    3 => ['nama' => 'Hanger Baju 5 pcs',  'poin' => 250, 'kategori' => 'plastik', 'gambar' => 'hanger.svg'],
-    4 => ['nama' => 'Tissue Box Kirby',   'poin' => 150, 'kategori' => 'kardus',  'gambar' => 'tissue-box.svg'],
-];
-$ongkir = 100; // poin, tetap untuk semua produk
+// ---- data user dari database ----
+$user      = data_user($conn, $user_id);
+$no_hp     = (string) ($user['no_telepon'] ?? '');
+$alamat    = alamat_lengkap($user);
+$poin_user = poin_user($conn, $user_id);
 
-// produk dicari lewat id; kalau tidak valid, pakai produk pertama
-$id = (int)($_GET['id'] ?? 0);
-$produk = $produk_list[$id] ?? $produk_list[1];
-
-$harga = $produk['poin'];
-$total_poin = $harga + $ongkir;
+$harga        = (int) $p['harga_poin'];
+$ongkir       = (int) $p['ongkir_poin'];
+$total_poin   = $harga + $ongkir;
 $poin_sesudah = $poin_user - $total_poin;
+
+$err = '';
+if ($langsung)                  { $err = 'Halaman ini hanya contoh tampilan. Pilih dulu dari halaman sebelumnya untuk menukar.'; }
+elseif ((int) $p['stok'] < 1)   { $err = 'Stok produk habis.'; }
+elseif ($alamat === '')         { $err = 'Alamat rumah belum diisi. Lengkapi dulu di Edit Profil.'; }
+elseif ($poin_sesudah < 0)      { $err = 'Poin kamu belum cukup untuk produk ini.'; }
+
+$error = $err;
+if ($error === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['csrf'], (string) ($_POST['csrf'] ?? ''))) {
+        $error = 'Sesi tidak valid. Muat ulang halaman lalu coba lagi.';
+    } else {
+        $hasil = simpan_penukaran($conn, $user_id, (int) $p['id'], 'produk_daur_ulang', ['alamat_pengiriman' => $alamat]);
+        if ($hasil['ok']) {
+            $_SESSION['flash'] = 'Penukaran berhasil. Kode: ' . $hasil['kode'];
+            header('Location: marketpoin.php');
+            exit;
+        }
+        $error = $hasil['pesan'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -59,7 +71,7 @@ $poin_sesudah = $poin_user - $total_poin;
   </div>
 
   <div class="pp-box pp-item">
-    <img src="images/<?= htmlspecialchars($produk['gambar']) ?>" alt="<?= htmlspecialchars($produk['nama']) ?>">
+    <img src="<?= e($produk['gambar']) ?>" alt="<?= htmlspecialchars($produk['nama']) ?>">
     <div>
       <h2>Produk Daur Ulang</h2>
       <div class="pp-sub"><?= htmlspecialchars($produk['nama']) ?></div>
@@ -67,7 +79,7 @@ $poin_sesudah = $poin_user - $total_poin;
     </div>
     <div class="pp-addr">
       <h4>Alamat Rumah</h4>
-      <p><?= htmlspecialchars($alamat) ?></p>
+      <p><?= $alamat !== '' ? e($alamat) : 'Belum diisi' ?></p>
     </div>
   </div>
 
@@ -85,7 +97,12 @@ $poin_sesudah = $poin_user - $total_poin;
     </div>
   </div>
 
-  <div class="pp-btn-wrap"><a class="pp-btn" href="marketpoin.php">Tukar Sekarang</a></div>
+  <?php if ($error !== ''): ?><div class="rp-alert rp-alert--err" role="alert"><?= e($error) ?></div><?php endif; ?>
+  <form class="pp-btn-wrap" method="post" action="konfirmasidaurulang.php">
+    <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+    <input type="hidden" name="id" value="<?= (int) $p['id'] ?>">
+    <button type="submit" class="pp-btn"<?= $error !== '' ? ' disabled' : '' ?>>Tukar Sekarang</button>
+  </form>
 </div>
 
 </body>

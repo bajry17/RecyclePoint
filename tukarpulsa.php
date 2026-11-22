@@ -1,21 +1,12 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/tukar_helper.php';
 
-// ---- data user dari database (sesuaikan nama db, tabel, kolom) ----
-$id_user = $_SESSION['id_user'] ?? 1;
-$poin_user = 999999; // nilai cadangan jika database tidak terbaca
-mysqli_report(MYSQLI_REPORT_OFF);
-$db = @new mysqli('localhost', 'root', '', 'recyclepoint');
-if (!$db->connect_errno && ($st = $db->prepare('SELECT poin FROM users WHERE id_user = ?'))) {
-    $st->bind_param('i', $id_user);
-    $st->execute();
-    $st->bind_result($p);
-    if ($st->fetch()) $poin_user = (int)$p;
-    $st->close();
-}
+$poin_user   = poin_user($conn, $user_id);
+$flash_error = ambil_flash_error();
 
-$rp_per_poin = 100; // 1 poin = Rp100
-$nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 150000];
+// ---- nominal dan harga poin dari produk_poin (tipe = pulsa) ----
+$nominal_list = daftar_nominal($conn, 'pulsa');
+$peta_operator = peta_operator($conn);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -54,10 +45,14 @@ $nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 
         </div>
       </div>
       <span class="tp-poin-divider"></span>
-      <span class="tp-poin-hist">Riwayat poin</span>
-      <i class="tp-ico tp-i-chev"></i>
+      <a class="tp-poin-hist" href="riwayat_transaksi.php">
+        Riwayat poin
+        <i class="tp-ico tp-i-chev"></i>
+      </a>
     </div>
   </section>
+
+  <?php if ($flash_error !== ''): ?><div class="rp-alert rp-alert--err" role="alert"><?= e($flash_error) ?></div><?php endif; ?>
 
   <form class="tp-form" id="tpForm" action="konfirmasipulsa.php" method="get">
     <div class="tp-wrap">
@@ -76,10 +71,10 @@ $nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 
       <input type="hidden" id="tpNominal" name="nominal" value="">
 
       <div class="tp-opts">
-        <?php foreach ($nominal_list as $n): ?>
-        <button type="button" class="tp-opt" data-nominal="<?= $n ?>" aria-pressed="false">
+        <?php foreach ($nominal_list as $row): $n = (int) $row['nominal']; ?>
+        <button type="button" class="tp-opt" data-nominal="<?= $n ?>" data-poin="<?= (int) $row['harga_poin'] ?>" aria-pressed="false">
           <span><?= number_format($n, 0, ',', '.') ?></span>
-          <span class="tp-hrg"><img src="images/coin.svg" alt=""><?= $n / $rp_per_poin ?></span>
+          <span class="tp-hrg"><img src="images/coin.svg" alt=""><?= (int) $row['harga_poin'] ?></span>
         </button>
         <?php endforeach; ?>
       </div>
@@ -94,18 +89,10 @@ $nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 
 </div>
 
 <script>
-const RP_PER_POIN = <?= (int)$rp_per_poin ?>;
 const POIN_USER = <?= (int)$poin_user ?>;
 
-// awalan nomor per operator (perlu diverifikasi)
-const OPERATOR = {
-  telkomsel: ['Telkomsel', ['0811', '0812', '0813', '0821', '0822', '0823', '0851', '0852', '0853']],
-  indosat:   ['Indosat',   ['0814', '0815', '0816', '0855', '0856', '0857', '0858']],
-  xl:        ['XL',        ['0817', '0818', '0819', '0859', '0877', '0878']],
-  axis:      ['Axis',      ['0831', '0832', '0833', '0838']],
-  tri:       ['Tri',       ['0895', '0896', '0897', '0898', '0899']],
-  smartfren: ['Smartfren', ['0881', '0882', '0883', '0884', '0885', '0886', '0887', '0888', '0889']]
-};
+// awalan nomor -> nama operator, dari tabel operator_prefix
+const PREFIX_OPERATOR = <?= json_encode($peta_operator, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
 const opts = document.querySelectorAll('.tp-opt');
 const nomor = document.getElementById('tpNomor');
@@ -116,13 +103,11 @@ const opr = document.getElementById('tpOpr');
 const oprImg = document.getElementById('tpOprImg');
 const oprNama = document.getElementById('tpOprNama');
 let terpilih = 0;
+let poinTerpilih = 0;
 
 function cariOperator(no) {
-  const awal = no.slice(0, 4);
-  for (const k in OPERATOR) {
-    if (OPERATOR[k][1].includes(awal)) return { key: k, nama: OPERATOR[k][0] };
-  }
-  return null;
+  const nama = PREFIX_OPERATOR[no.slice(0, 4)];
+  return nama ? { key: nama.toLowerCase(), nama: nama } : null;
 }
 
 function labelOperator() {
@@ -144,8 +129,9 @@ function labelOperator() {
 
 function cek() {
   const nomorOk = /^08\d{8,11}$/.test(nomor.value);
-  const poinCukup = terpilih / RP_PER_POIN <= POIN_USER;
-  btn.disabled = !(nomorOk && terpilih > 0 && poinCukup);
+  const poinCukup = poinTerpilih <= POIN_USER;
+  const operatorOk = cariOperator(nomor.value) !== null;
+  btn.disabled = !(nomorOk && operatorOk && terpilih > 0 && poinCukup);
 }
 
 opts.forEach(o => o.addEventListener('click', () => {
@@ -153,8 +139,9 @@ opts.forEach(o => o.addEventListener('click', () => {
   o.classList.add('is-selected');
   o.setAttribute('aria-pressed', 'true');
   terpilih = parseInt(o.dataset.nominal, 10);
+  poinTerpilih = parseInt(o.dataset.poin, 10);
   nominal.value = terpilih;
-  totalEl.textContent = terpilih / RP_PER_POIN;
+  totalEl.textContent = poinTerpilih;
   cek();
 }));
 
