@@ -168,11 +168,6 @@ $bankSampah = getBankSampah($conn, $keyword, $sort);
         <div class="dl-location-info">
             <h3><?= e($bank['nama']) ?></h3>
             <p><?= e($bank['alamat']) ?></p>
-            <p>
-               <?= e($bank['kecamatan']) ?>
-               <?= !empty($bank['kota']) ? ',' . e($bank['kota']) : '' ?>
-            </p>
-            <p>No. telepon: <?= e($bank['no_telepon'] ?: 'Belum tersedia') ?></p>
             <span>Jam operasional: <?= e($bank['jam_operasional'] ?: 'Belum tersedia') ?></span>
         </div>
 
