@@ -34,6 +34,7 @@ if (!in_array($nominal, $nominal_valid, true)) {
 }
 $total_poin = $nominal / $rp_per_poin;
 $poin_sesudah = $poin_user - $total_poin;
+$gambar = 'images/' . strtolower($app) . '.svg'; // gopay.svg atau dana.svg
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -57,7 +58,7 @@ $poin_sesudah = $poin_user - $total_poin;
   </div>
 
   <div class="pp-box pp-item">
-    <img src="images/Placeholder.png" alt="">
+    <img src="<?= htmlspecialchars($gambar) ?>" alt="<?= htmlspecialchars($app) ?>">
     <div>
       <h2>E-wallet</h2>
       <div class="pp-sub"><?= htmlspecialchars($app) ?></div>

@@ -30,22 +30,25 @@ if (!in_array($nominal, $nominal_valid, true)) {
 $total_poin = $nominal / $rp_per_poin;
 $poin_sesudah = $poin_user - $total_poin;
 
-function operatorDariNomor($nomor) {
-    $prefix = substr($nomor, 0, 4);
-    $peta = [
-        'Telkomsel' => ['0811', '0812', '0813', '0821', '0822', '0823', '0851', '0852', '0853'],
-        'Indosat'   => ['0814', '0815', '0816', '0855', '0856', '0857', '0858'],
-        'XL'        => ['0817', '0818', '0819', '0859', '0877', '0878'],
-        'Axis'      => ['0831', '0832', '0833', '0838'],
-        'Tri'       => ['0895', '0896', '0897', '0898', '0899'],
-        'Smartfren' => ['0881', '0882', '0883', '0884', '0885', '0886', '0887', '0888', '0889'],
-    ];
-    foreach ($peta as $nama => $daftar) {
-        if (in_array($prefix, $daftar, true)) return $nama;
+// operator dari 4 digit awal nomor (daftar awalan perlu diverifikasi)
+$operator_peta = [
+    'telkomsel' => ['Telkomsel', ['0811', '0812', '0813', '0821', '0822', '0823', '0851', '0852', '0853']],
+    'indosat'   => ['Indosat',   ['0814', '0815', '0816', '0855', '0856', '0857', '0858']],
+    'xl'        => ['XL',        ['0817', '0818', '0819', '0859', '0877', '0878']],
+    'axis'      => ['Axis',      ['0831', '0832', '0833', '0838']],
+    'tri'       => ['Tri',       ['0895', '0896', '0897', '0898', '0899']],
+    'smartfren' => ['Smartfren', ['0881', '0882', '0883', '0884', '0885', '0886', '0887', '0888', '0889']],
+];
+$op_key = '';
+$operator = 'Operator tidak dikenali';
+foreach ($operator_peta as $key => [$nama_op, $awalan]) {
+    if (in_array(substr($nomor, 0, 4), $awalan, true)) {
+        $op_key = $key;
+        $operator = $nama_op;
+        break;
     }
-    return 'Operator tidak dikenali';
 }
-$operator = operatorDariNomor($nomor);
+$gambar = $op_key !== '' ? "images/$op_key.svg" : 'images/Placeholder.png';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -69,7 +72,7 @@ $operator = operatorDariNomor($nomor);
   </div>
 
   <div class="pp-box pp-item">
-    <img src="images/Placeholder.png" alt="">
+    <img src="<?= htmlspecialchars($gambar) ?>" alt="<?= htmlspecialchars($operator) ?>">
     <div>
       <h2>Pulsa</h2>
       <div class="pp-sub"><?= htmlspecialchars($operator) ?></div>
@@ -82,7 +85,7 @@ $operator = operatorDariNomor($nomor);
 
   <div class="pp-box pp-pay">
     <h3>Rincian Pembayaran</h3>
-    <div class="pp-row"><span>Pulsa</span><span class="pp-val"><?= (int)$total_poin ?></span></div>
+    <div class="pp-row"><span>Pulsa <?= htmlspecialchars($operator) ?></span><span class="pp-val"><?= (int)$total_poin ?></span></div>
     <div class="pp-tot">
       <span class="pp-lbl">Total Penukaran</span>
       <span class="pp-tp"><img src="images/coin.svg" alt=""><?= (int)$total_poin ?></span>

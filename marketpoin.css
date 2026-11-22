@@ -80,13 +80,15 @@ body { margin: 0; background: #f5fbe6; font-family: 'Plus Jakarta Sans', sans-se
 }
 
 /* tab kategori produk */
-.mp-tabs { display: flex; flex-wrap: wrap; gap: 50px; padding: 26px 61px 0; font-weight: 500; font-size: 22px; line-height: 28px; }
-.mp-tabs span { position: relative; padding-bottom: 6px; }
-.mp-tabs .is-on { font-weight: 700; color: #009345; }
-.mp-tabs .is-on::after { content: ""; position: absolute; left: 12px; bottom: 0; width: 55px; height: 3px; background: #009345; }
+.mp-tabs { display: flex; flex-wrap: wrap; gap: 50px; padding: 26px 61px 0; }
+.mp-tab { position: relative; padding: 0 0 6px; border: 0; background: none; cursor: pointer;
+  color: #000; font: 500 22px/28px 'Plus Jakarta Sans', sans-serif; }
+.mp-tab.is-on { font-weight: 700; color: #009345; }
+.mp-tab.is-on::after { content: ""; position: absolute; left: 12px; bottom: 0; width: 55px; height: 3px; background: #009345; }
 
 /* kartu produk */
 .mp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 56px; padding: 26px 60px 60px; }
+.mp-card[hidden], .mp-kosong[hidden] { display: none; }
 .mp-card { background: #fff; border: 1px solid #fe7f2d; border-radius: 20px; padding-bottom: 10px; }
 .mp-thumb { display: block; width: calc(100% + 2px); height: 234px; margin: -1px -1px 0;
   object-fit: cover; border-radius: 20px 20px 0 0; }
@@ -97,3 +99,5 @@ body { margin: 0; background: #f5fbe6; font-family: 'Plus Jakarta Sans', sans-se
 .mp-btn { display: block; height: 35.5px; margin: 0 20px; border: 2.318px solid #df712a; border-radius: 11.589px;
   background: #fe7f2d; color: #000; text-align: center; text-decoration: none;
   font: 400 18.542px/31px 'Plus Jakarta Sans', sans-serif; }
+.mp-kosong { grid-column: 1 / -1; margin: 0; padding: 40px 0; text-align: center;
+  font-size: 22px; color: rgba(46, 71, 4, .6); }

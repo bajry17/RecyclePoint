@@ -20,18 +20,20 @@ if (!$db->connect_errno && ($st = $db->prepare('SELECT poin, no_hp, alamat, keca
     $st->close();
 }
 
-$ongkir = 100; // poin, masih placeholder
+// ---- data produk (sementara di PHP; array yang sama ada di marketpoin.php) ----
+$produk_list = [
+    1 => ['nama' => 'Jurnal Handmade',    'poin' => 100, 'kategori' => 'kertas',  'gambar' => 'jurnal.jpg'],
+    2 => ['nama' => 'Gantungan Kunci',    'poin' => 70,  'kategori' => 'logam',   'gambar' => 'gantungan-kunci.svg'],
+    3 => ['nama' => 'Hanger Baju 5 pcs',  'poin' => 250, 'kategori' => 'plastik', 'gambar' => 'hanger.svg'],
+    4 => ['nama' => 'Tissue Box Kirby',   'poin' => 150, 'kategori' => 'kardus',  'gambar' => 'tissue-box.svg'],
+];
+$ongkir = 100; // poin, tetap untuk semua produk
 
-$produk = trim($_GET['produk'] ?? '');
-$harga = (int)($_GET['poin'] ?? 0);
+// produk dicari lewat id; kalau tidak valid, pakai produk pertama
+$id = (int)($_GET['id'] ?? 0);
+$produk = $produk_list[$id] ?? $produk_list[1];
 
-// kalau halaman dibuka langsung atau datanya tidak valid, pakai nilai default
-if ($produk === '') {
-    $produk = 'tes1';
-}
-if ($harga <= 0) {
-    $harga = 2121;
-}
+$harga = $produk['poin'];
 $total_poin = $harga + $ongkir;
 $poin_sesudah = $poin_user - $total_poin;
 ?>
@@ -57,10 +59,10 @@ $poin_sesudah = $poin_user - $total_poin;
   </div>
 
   <div class="pp-box pp-item">
-    <img src="images/Placeholder.png" alt="">
+    <img src="images/<?= htmlspecialchars($produk['gambar']) ?>" alt="<?= htmlspecialchars($produk['nama']) ?>">
     <div>
       <h2>Produk Daur Ulang</h2>
-      <div class="pp-sub"><?= htmlspecialchars($produk) ?></div>
+      <div class="pp-sub"><?= htmlspecialchars($produk['nama']) ?></div>
       <div class="pp-info">Nomor Telepon: <?= htmlspecialchars($no_hp) ?></div>
     </div>
     <div class="pp-addr">
@@ -71,7 +73,7 @@ $poin_sesudah = $poin_user - $total_poin;
 
   <div class="pp-box pp-pay">
     <h3>Rincian Pembayaran</h3>
-    <div class="pp-row"><span><?= htmlspecialchars($produk) ?></span><span class="pp-val"><?= (int)$harga ?></span></div>
+    <div class="pp-row"><span><?= htmlspecialchars($produk['nama']) ?></span><span class="pp-val"><?= (int)$harga ?></span></div>
     <div class="pp-row pp-r2"><span>Biaya Ongkir</span><span class="pp-val"><?= (int)$ongkir ?></span></div>
     <div class="pp-tot">
       <span class="pp-lbl">Total Penukaran</span>

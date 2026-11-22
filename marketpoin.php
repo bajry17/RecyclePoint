@@ -14,11 +14,12 @@ if (!$db->connect_errno && ($st = $db->prepare('SELECT poin FROM users WHERE id_
     $st->close();
 }
 
-$produk = [
-    ['nama' => 'tes1', 'poin' => 2121],
-    ['nama' => 'tes1', 'poin' => 2121],
-    ['nama' => 'tes1', 'poin' => 2121],
-    ['nama' => 'tes1', 'poin' => 2121],
+// ---- data produk (sementara di PHP; array yang sama ada di konfirmasidaurulang.php) ----
+$produk_list = [
+    1 => ['nama' => 'Jurnal Handmade',    'poin' => 100, 'kategori' => 'kertas',  'gambar' => 'jurnal.jpg'],
+    2 => ['nama' => 'Gantungan Kunci',    'poin' => 70,  'kategori' => 'logam',   'gambar' => 'gantungan-kunci.svg'],
+    3 => ['nama' => 'Hanger Baju 5 pcs',  'poin' => 250, 'kategori' => 'plastik', 'gambar' => 'hanger.svg'],
+    4 => ['nama' => 'Tissue Box Kirby',   'poin' => 150, 'kategori' => 'kardus',  'gambar' => 'tissue-box.svg'],
 ];
 ?>
 <!DOCTYPE html>
@@ -49,8 +50,8 @@ $produk = [
       </div>
 
       <div class="mp-search">
-        <input type="text" placeholder="Cari di Market Poin">
-        <button type="button" aria-label="Cari"><img src="images/search.svg" alt=""></button>
+        <input type="text" id="mpCari" placeholder="Cari di Market Poin" autocomplete="off">
+        <button type="button" id="mpCariBtn" aria-label="Cari"><img src="images/search.svg" alt=""></button>
       </div>
     </div>
 
@@ -69,25 +70,56 @@ $produk = [
   </section>
 
   <div class="mp-tabs">
-    <span class="is-on">For You</span>
-    <span>Plastik</span>
-    <span>Logam</span>
-    <span>Kardus</span>
-    <span>Kertas</span>
-    <span>Lainnya</span>
+    <button type="button" class="mp-tab is-on" data-kat="semua">For You</button>
+    <button type="button" class="mp-tab" data-kat="plastik">Plastik</button>
+    <button type="button" class="mp-tab" data-kat="logam">Logam</button>
+    <button type="button" class="mp-tab" data-kat="kardus">Kardus</button>
+    <button type="button" class="mp-tab" data-kat="kertas">Kertas</button>
+    <button type="button" class="mp-tab" data-kat="lainnya">Lainnya</button>
   </div>
 
   <div class="mp-grid">
-    <?php foreach ($produk as $p): ?>
-    <div class="mp-card">
-      <img class="mp-thumb" src="images/Placeholder.png" alt="">
+    <?php foreach ($produk_list as $id => $p): ?>
+    <div class="mp-card" data-kat="<?= htmlspecialchars($p['kategori']) ?>" data-nama="<?= htmlspecialchars(mb_strtolower($p['nama'])) ?>">
+      <img class="mp-thumb" src="images/<?= htmlspecialchars($p['gambar']) ?>" alt="<?= htmlspecialchars($p['nama']) ?>">
       <div class="mp-nm"><?= htmlspecialchars($p['nama']) ?></div>
       <div class="mp-pr"><img src="images/coin.svg" alt=""><?= (int)$p['poin'] ?></div>
-      <a class="mp-btn" href="konfirmasidaurulang.php?produk=<?= urlencode($p['nama']) ?>&amp;poin=<?= (int)$p['poin'] ?>">Tukar Sekarang</a>
+      <a class="mp-btn" href="konfirmasidaurulang.php?id=<?= (int)$id ?>">Tukar Sekarang</a>
     </div>
     <?php endforeach; ?>
+    <p class="mp-kosong" id="mpKosong" hidden></p>
   </div>
 </div>
 
+<script>
+const tabs = document.querySelectorAll('.mp-tab');
+const kartu = document.querySelectorAll('.mp-card');
+const cari = document.getElementById('mpCari');
+const kosong = document.getElementById('mpKosong');
+let kategori = 'semua';
+
+function tampil() {
+  const q = cari.value.trim().toLowerCase();
+  let jumlah = 0;
+  kartu.forEach(k => {
+    const cocokKat = kategori === 'semua' || k.dataset.kat === kategori;
+    const cocokNama = k.dataset.nama.includes(q);
+    k.hidden = !(cocokKat && cocokNama);
+    if (!k.hidden) jumlah++;
+  });
+  kosong.hidden = jumlah > 0;
+  kosong.textContent = q ? 'Produk tidak ditemukan.' : 'Belum ada produk di kategori ini.';
+}
+
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(x => x.classList.remove('is-on'));
+  t.classList.add('is-on');
+  kategori = t.dataset.kat;
+  tampil();
+}));
+cari.addEventListener('input', tampil);
+document.getElementById('mpCariBtn').addEventListener('click', tampil);
+cari.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); tampil(); } });
+</script>
 </body>
 </html>

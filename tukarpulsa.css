@@ -55,7 +55,7 @@ body { margin: 0; background: #f5fbe6; font-family: 'Plus Jakarta Sans', sans-se
   border-radius: 68px; background: #fff; color: #076735; font-size: 22px; text-decoration: none; }
 .tp-pill.is-active { background: #076735; color: #fff; }
 
-/* kartu poin (menempel ke tepi kanan layar, seperti di Figma) */
+/* kartu poin */
 .tp-poin { position: absolute; top: 123px; right: 0; width: 422px; height: 117px;
   display: flex; align-items: center; background: #235f5f; border-radius: 42px 0 0 42px; color: #fff; }
 .tp-poin-left { display: flex; align-items: center; gap: 3px; width: 215px; padding-left: 7px; }
@@ -73,12 +73,20 @@ body { margin: 0; background: #f5fbe6; font-family: 'Plus Jakarta Sans', sans-se
 .tp-form { margin: 0; }
 .tp-wrap { padding: 21px 62px 0; }
 .tp-wrap h2 { margin: 0 0 0 3px; font: 700 36px/1.25 'Plus Jakarta Sans', sans-serif; }
-.tp-label { display: block; margin: 15px 0 0 3px; font-size: 20px; }
-.tp-input { display: block; width: 100%; max-width: 747px; height: 55px; margin: 5px 0 0 3px;
+.tp-label { display: block; margin: 15px 0 0 3px; font-size: 20px; line-height: 25px; }
+.tp-inputrow { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin: 5px 0 0 3px; }
+.tp-input { display: block; flex: 0 1 747px; width: 100%; max-width: 747px; height: 55px; margin: 0;
   padding: 0 16px; border: 1px solid #2e4704; background: #fff;
   font: 400 20px 'Plus Jakarta Sans', sans-serif; outline: none; }
 .tp-input::placeholder { color: rgba(0, 0, 0, .5); }
 .tp-input:focus { border-color: #076735; box-shadow: 0 0 0 2px rgba(7, 103, 53, .2); }
+
+/* label operator (muncul otomatis dari awalan nomor) */
+.tp-opr { display: flex; align-items: center; gap: 10px; height: 55px; padding: 0 18px;
+  background: #fff; border: 1px solid #fe7f2d; border-radius: 12px; font: 600 20px 'Plus Jakarta Sans', sans-serif; }
+.tp-opr[hidden], .tp-opr img[hidden] { display: none; }
+.tp-opr img { display: block; height: 32px; width: auto; max-width: 80px; }
+.tp-opr.is-unknown { border-color: #b3b3b3; color: rgba(0, 0, 0, .55); font-weight: 400; }
 
 .tp-opts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 60px 56px; margin-top: 21px; }
 .tp-opt { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
@@ -93,6 +101,6 @@ body { margin: 0; background: #f5fbe6; font-family: 'Plus Jakarta Sans', sans-se
 .tp-tot { font-size: 24px; }
 .tp-tp { display: flex; align-items: center; font-weight: 800; font-size: 28px; color: #fcc01e; }
 .tp-tp img { width: 47px; height: 47px; }
-.tp-btn { width: 321px; height: 46px; margin-left: 24px; border: 3px solid #df712a; border-radius: 15px;
+.tp-btn { width: 321px; height: 46px; margin-left: 20px; border: 3px solid #df712a; border-radius: 15px;
   background: #fe7f2d; font: 400 24px 'Plus Jakarta Sans', sans-serif; color: #000; cursor: pointer; }
 .tp-btn:disabled { opacity: .45; cursor: not-allowed; }

@@ -64,8 +64,14 @@ $nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 
       <h2>Top-up Pulsa dengan Poin</h2>
 
       <label class="tp-label" for="tpNomor">Nomor Telepon</label>
-      <input class="tp-input" type="tel" id="tpNomor" name="nomor" inputmode="numeric" maxlength="13"
-             placeholder="Silahkan Masukkan Nomor Teleponmu" autocomplete="off">
+      <div class="tp-inputrow">
+        <input class="tp-input" type="tel" id="tpNomor" name="nomor" inputmode="numeric" maxlength="13"
+               placeholder="Silahkan Masukkan Nomor Teleponmu" autocomplete="off">
+        <div class="tp-opr" id="tpOpr" hidden>
+          <img id="tpOprImg" alt="" hidden>
+          <span id="tpOprNama"></span>
+        </div>
+      </div>
 
       <input type="hidden" id="tpNominal" name="nominal" value="">
 
@@ -91,12 +97,50 @@ $nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 
 const RP_PER_POIN = <?= (int)$rp_per_poin ?>;
 const POIN_USER = <?= (int)$poin_user ?>;
 
+// awalan nomor per operator (perlu diverifikasi)
+const OPERATOR = {
+  telkomsel: ['Telkomsel', ['0811', '0812', '0813', '0821', '0822', '0823', '0851', '0852', '0853']],
+  indosat:   ['Indosat',   ['0814', '0815', '0816', '0855', '0856', '0857', '0858']],
+  xl:        ['XL',        ['0817', '0818', '0819', '0859', '0877', '0878']],
+  axis:      ['Axis',      ['0831', '0832', '0833', '0838']],
+  tri:       ['Tri',       ['0895', '0896', '0897', '0898', '0899']],
+  smartfren: ['Smartfren', ['0881', '0882', '0883', '0884', '0885', '0886', '0887', '0888', '0889']]
+};
+
 const opts = document.querySelectorAll('.tp-opt');
 const nomor = document.getElementById('tpNomor');
 const nominal = document.getElementById('tpNominal');
 const totalEl = document.getElementById('tpTotal');
 const btn = document.getElementById('tpBtn');
+const opr = document.getElementById('tpOpr');
+const oprImg = document.getElementById('tpOprImg');
+const oprNama = document.getElementById('tpOprNama');
 let terpilih = 0;
+
+function cariOperator(no) {
+  const awal = no.slice(0, 4);
+  for (const k in OPERATOR) {
+    if (OPERATOR[k][1].includes(awal)) return { key: k, nama: OPERATOR[k][0] };
+  }
+  return null;
+}
+
+function labelOperator() {
+  if (nomor.value.length < 4) { opr.hidden = true; return; }
+  const o = cariOperator(nomor.value);
+  opr.hidden = false;
+  if (o) {
+    oprImg.hidden = false;
+    oprImg.onerror = () => { oprImg.hidden = true; };
+    oprImg.src = 'images/' + o.key + '.svg';
+    oprNama.textContent = o.nama;
+    opr.classList.remove('is-unknown');
+  } else {
+    oprImg.hidden = true;
+    oprNama.textContent = 'Operator tidak dikenali';
+    opr.classList.add('is-unknown');
+  }
+}
 
 function cek() {
   const nomorOk = /^08\d{8,11}$/.test(nomor.value);
@@ -116,6 +160,7 @@ opts.forEach(o => o.addEventListener('click', () => {
 
 nomor.addEventListener('input', () => {
   nomor.value = nomor.value.replace(/\D/g, '').slice(0, 13);
+  labelOperator();
   cek();
 });
 </script>

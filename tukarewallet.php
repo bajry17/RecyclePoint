@@ -66,9 +66,17 @@ $nominal_list = [5000, 10000, 15000, 20000, 25000, 30000, 50000, 75000, 100000, 
       <div class="te-app">
         <p>Pilih aplikasi e-wallet kamu</p>
         <div class="te-app-opts">
-          <label class="te-radio"><input type="radio" name="app" value="Gopay" checked><span class="te-dot"></span>Gopay</label>
-          <label class="te-radio"><input type="radio" name="app" value="Dana"><span class="te-dot"></span>Dana</label>
-        </div>
+          <label class="te-radio">
+            <input type="radio" name="app" value="Gopay" checked>
+            <span class="te-dot"></span>
+            <img src="images/gopay.svg" alt="Gopay">
+          </label>
+          <label class="te-radio">
+            <input type="radio" name="app" value="Dana">
+            <span class="te-dot"></span>
+            <img src="images/dana.svg" alt="Dana">
+          </label>
+</div>
       </div>
 
       <label class="te-label" for="teNomor">Nomor Telepon</label>
