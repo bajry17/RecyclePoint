@@ -284,7 +284,8 @@ $bankTerdekat = getBankSampahTerdekat($userId);  // panel lokasi bank sampah
              <?php else: ?>
               <?php foreach (array_slice($setoranBaru, 0, 2) as $s): ?>
             <li>
-              <div><span><?= formatTanggal($s['waktu_setor'], false) ?> &nbsp; <?= date('H.i', strtotime($s['waktu_setor'])) ?></span></div>
+              <div><strong>ID - <?= htmlspecialchars($s['kode']) ?></strong><span><?= formatTanggal($s['waktu_setor'], false) ?> &nbsp; <?= date('H.i', strtotime($s['waktu_setor'])) ?></span></div>
+              <b>+<?= number_format((int) $s['total_poin'], 0, ',', '.') ?> Poin</b>
             </li>
               <?php endforeach; ?>
             <?php endif; ?>
