@@ -1,3 +1,75 @@
+<?php
+session_start();
+
+require_once 'koneksi.php';
+
+if (empty($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
+$userId = (int) $_SESSION['user_id'];
+
+function e($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
+// 1.20 -> "1,2" | 2.00 -> "2"
+function kg($v) { return rtrim(rtrim(number_format((float) $v, 2, ',', '.'), '0'), ','); }
+
+// detail_setor.php?kode=RP-1211-00128 ; tanpa kode = setoran terbaru milik user
+$kode = trim($_GET['kode'] ?? '');
+$stmt = $conn->prepare(
+    'SELECT s.id, s.kode, s.status, s.total_berat_kg, s.total_poin, s.waktu_setor,
+            b.nama AS bank_sampah, p.nama AS petugas
+       FROM setoran s
+       JOIN bank_sampah b ON b.id = s.bank_sampah_id
+  LEFT JOIN petugas p     ON p.id = s.petugas_id
+      WHERE s.user_id = ? AND (CHAR_LENGTH(?) = 0 OR s.kode = ?)
+   ORDER BY s.waktu_setor DESC
+      LIMIT 1'
+);
+$stmt->bind_param('iss', $userId, $kode, $kode);
+$stmt->execute();
+$s = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if ($s) {
+    $stmt = $conn->prepare(
+        'SELECT j.nama AS jenis, COALESCE(i.nama_item, j.nama) AS nama, i.berat_kg, i.poin_didapat
+           FROM setoran_item i
+      LEFT JOIN jenis_sampah j ON j.id = i.jenis_sampah
+          WHERE i.setoran_id = ?
+       ORDER BY i.id'
+    );
+    $stmt->bind_param('i', $s['id']);
+    $stmt->execute();
+    $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    $bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+              'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    $w       = new DateTime($s['waktu_setor']);
+    $tanggal = $w->format('j') . ' ' . $bulan[(int) $w->format('n')] . ' ' . $w->format('Y');
+    $jam     = $w->format('H.i') . ' WIB';
+    $jenis   = implode(', ', array_unique(array_column($items, 'jenis')));
+
+    $info = [
+        'Jenis'        => 'Setor Sampah ' . $jenis,
+        'ID Transaksi' => $s['kode'],
+        'Tanggal'      => $tanggal,
+        'Waktu'        => $jam,
+        'Petugas'      => $s['petugas'] ?? '-',
+        'Lokasi'       => $s['bank_sampah'],
+    ];
+    // [judul, keterangan, jam] - hanya tahap terakhir yang punya jam (waktu_setor)
+    $tahap = [
+        ['Setoran diajukan',    'Sampah jenis ' . mb_strtolower($jenis), ''],
+        ['Diterima petugas',    'Petugas memeriksa dan memilahnya', ''],
+        ['Penimbangan selesai', 'Total berat terverifikasi ' . kg($s['total_berat_kg']) . ' kg', ''],
+        ['Poin masuk ke akun',  '+' . $s['total_poin'] . ' poin ditambahkan', $jam],
+    ];
+    $cek = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
+} else {
+    http_response_code(404);
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -19,236 +91,83 @@
 
   <main class="page ds-page">
 
-    <nav class="breadcrumb" aria-label="Breadcrumb">
-      Dashboard/Riwayat Setor/Detail
-    </nav>
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="dashboard.php">Dashboard</a>/<a href="riwayat_setor.php">Riwayat Setor</a>/ Detail</nav>
 
     <div class="ds-heading">
       <h1 class="page__title">Detail Setor Sampah</h1>
-
-      <div class="ds-actions">
-        <button type="button" class="ds-btn ds-btn--white" onclick="window.print()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-               stroke-linejoin="round" aria-hidden="true">
-            <path d="M6 9V3h12v6"/>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-            <path d="M6 14h12v7H6z"/>
-          </svg>
-          Cetak
-        </button>
-
-        <button type="button" class="ds-btn ds-btn--orange" id="downloadButton">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round"
-               stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <path d="m7 10 5 5 5-5"/>
-            <path d="M12 15V3"/>
-          </svg>
-          Unduh bukti
-        </button>
-      </div>
+      <?php if ($s): ?>
+        <div class="ds-actions">
+          <button type="button" class="ds-button ds-button--orange" onclick="window.print()">Cetak bukti</button>
+        </div>
+      <?php endif; ?>
     </div>
 
-    <section class="ds-timeline-card">
+  <?php if (!$s): ?>
 
-      <span class="ds-success">Berhasil</span>
-
-      <div class="ds-timeline">
-
-        <div class="ds-step">
-          <div class="ds-step__circle">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m5 12 4 4L19 6"/>
-            </svg>
-          </div>
-          <strong>Setoran diajukan</strong>
-          <p>Sampah jenis plastik</p>
-          <time>14.15 WIB</time>
-        </div>
-
-        <div class="ds-step">
-          <div class="ds-step__circle">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m5 12 4 4L19 6"/>
-            </svg>
-          </div>
-          <strong>Diterima petugas</strong>
-          <p>Petugas memeriksa dan memilahnya</p>
-          <time>14.18 WIB</time>
-        </div>
-
-        <div class="ds-step">
-          <div class="ds-step__circle">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m5 12 4 4L19 6"/>
-            </svg>
-          </div>
-          <strong>Penimbangan selesai</strong>
-          <p class="ds-link-text">Lihat bukti total berat terverifikasi 2 kg</p>
-          <time>14.25 WIB</time>
-        </div>
-
-        <div class="ds-step ds-step--last">
-          <div class="ds-step__circle">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m5 12 4 4L19 6"/>
-            </svg>
-          </div>
-          <strong>Poin masuk ke akun</strong>
-          <p>+20 poin ditambahkan</p>
-          <time>14.30 WIB</time>
-        </div>
-
-      </div>
+    <section class="ds-info-card">
+      <h2>Setoran tidak ditemukan</h2>
+      <p>Data setoran tidak ada atau bukan milik akun Anda. <a href="riwayat_setor.php">Kembali ke Riwayat Setor</a></p>
     </section>
 
-    <!-- Informasi transaksi dan total -->
+  <?php else: ?>
+
+    <?php if ($s['status'] === 'berhasil'): ?>
+    <section class="ds-timeline-card">
+      <span class="ds-success">Berhasil</span>
+      <div class="ds-timeline">
+        <?php foreach ($tahap as $i => [$judul, $ket, $waktu]): ?>
+          <div class="ds-step<?= $i === 3 ? ' ds-step--last' : '' ?>">
+            <div class="ds-step__circle"><?= $cek ?></div>
+            <strong><?= e($judul) ?></strong>
+            <p><?= e($ket) ?></p>
+            <?php if ($waktu): ?><time><?= e($waktu) ?></time><?php endif; ?>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </section>
+    <?php endif; ?>
+
     <div class="ds-content">
 
       <section class="ds-info-card">
         <h2>Informasi</h2>
-
-        <div class="ds-info-row">
-          <span>Jenis</span>
-          <strong>Setor Sampah Plastik</strong>
-        </div>
-
-        <div class="ds-info-row">
-          <span>ID Transaksi</span>
-          <strong>RP-1211-00128</strong>
-        </div>
-
-        <div class="ds-info-row">
-          <span>Tanggal</span>
-          <strong>12 November 2026</strong>
-        </div>
-
-        <div class="ds-info-row">
-          <span>Waktu</span>
-          <strong>14.30 WIB</strong>
-        </div>
-
-        <div class="ds-info-row">
-          <span>Petugas</span>
-          <strong>Wulandari</strong>
-        </div>
-
-        <div class="ds-info-row">
-          <span>Lokasi</span>
-          <strong>Bank Sampah Asri</strong>
-        </div>
+        <?php foreach ($info as $label => $nilai): ?>
+          <div class="ds-info-row"><span><?= e($label) ?></span><strong><?= e($nilai) ?></strong></div>
+        <?php endforeach; ?>
       </section>
 
       <div class="ds-right-column">
 
         <section class="ds-total-card">
-
           <div class="ds-total-item">
             <p>Total berat</p>
-            <strong>2 <small>kg</small></strong>
+            <strong><?= e(kg($s['total_berat_kg'])) ?> <small>kg</small></strong>
           </div>
-
           <div class="ds-total-item ds-total-item--orange">
             <p>Poin diperoleh</p>
-            <strong>+20 <small>poin</small></strong>
+            <strong>+<?= e($s['total_poin']) ?> <small>poin</small></strong>
           </div>
-
         </section>
 
         <section class="ds-detail-card">
           <h2>Rincian Item Sampah</h2>
-
-          <div class="ds-table">
-
-            <div class="ds-table-row ds-table-head">
-              <span>Detail</span>
-              <span>Berat</span>
-              <span>Poin</span>
-            </div>
-
+          <div class="ds-table-row ds-table-head"><span>Detail</span><span>Berat</span><span>Poin</span></div>
+          <?php foreach ($items as $it): ?>
             <div class="ds-table-row">
-              <span>Botol PET Bening</span>
-              <span>1,2 kg</span>
-              <strong>+12</strong>
+              <span><?= e($it['nama']) ?></span>
+              <span><?= e(kg($it['berat_kg'])) ?> kg</span>
+              <strong>+<?= e($it['poin_didapat']) ?></strong>
             </div>
-
-            <div class="ds-table-row">
-              <span>Gelas Plastik</span>
-              <span>0,5 kg</span>
-              <strong>+5</strong>
-            </div>
-
-            <div class="ds-table-row">
-              <span>Plastik Campuran</span>
-              <span>0,3 kg</span>
-              <strong>+3</strong>
-            </div>
-
-          </div>
+          <?php endforeach; ?>
         </section>
 
       </div>
     </div>
 
+  <?php endif; ?>
+
   </main>
 
   <script src="header/sidebar.js" defer></script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const tombolNotifikasi = document.querySelector(
-        '[aria-label="Notifikasi"]'
-      );
-
-      if (tombolNotifikasi) {
-        tombolNotifikasi.addEventListener("click", function () {
-          window.location.href = "notifikasi.php";
-        });
-      }
-
-      const tombolUnduh = document.getElementById("downloadButton");
-
-      tombolUnduh.addEventListener("click", function () {
-        const bukti = `
-BUKTI SETOR SAMPAH RECYCLEPOINT
-
-ID Transaksi : RP-1211-00128
-Tanggal      : 12 November 2026
-Waktu        : 14.30 WIB
-Jenis        : Setor Sampah Plastik
-Petugas      : Wulandari
-Lokasi       : Bank Sampah Asri
-
-TOTAL BERAT  : 2 kg
-POIN DIDAPAT : +20 poin
-
-RINCIAN ITEM:
-Botol PET Bening : 1,2 kg (+12 poin)
-Gelas Plastik   : 0,5 kg (+5 poin)
-Plastik Campuran: 0,3 kg (+3 poin)
-
-Status: BERHASIL
-        `.trim();
-
-        const file = new Blob([bukti], {
-          type: "text/plain;charset=utf-8"
-        });
-
-        const url = URL.createObjectURL(file);
-        const link = document.createElement("a");
-
-        link.href = url;
-        link.download = "bukti-setor-RP-1211-00128.txt";
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        URL.revokeObjectURL(url);
-      });
-    });
-  </script>
-
 </body>
 </html>
