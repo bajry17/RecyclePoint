@@ -1,24 +1,67 @@
 <?php
-$bankSampah = [
-    [
-        'nama' => 'Bank Sampah Asri',
-        'alamat' => 'Dago, Bandung',
-        'jarak' => '1 km',
-        'jarak_angka' => 1
-    ],
-    [
-        'nama' => 'Bank Sampah Harapan',
-        'alamat' => 'Lebak Gede, Bandung',
-        'jarak' => '1,2 km',
-        'jarak_angka' => 1.2
-    ],
-    [
-        'nama' => 'Bank Sampah Bumi Hijau',
-        'alamat' => 'Lebak Siliwangi, Bandung',
-        'jarak' => '1,6 km',
-        'jarak_angka' => 1.6
-    ]
-];
+session_start();
+
+require_once 'koneksi.php';
+
+//Untuk mengamankan teks yang ditampilkan ke halaman.
+function e($value): string 
+{
+    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+} 
+
+// FUngsi untuk mengambil daftar bank sampah yang aktif 
+function getBankSampah(mysqli $conn, string $keyword = '', string $sort = 'default'): array
+{
+    $sql = "SELECT id, nama, alamat, provinsi, kota, kecamatan, kode_pos, latitude, longitude, no_telepon, jam_operasional, foto, status 
+    FROM bank_sampah
+    WHERE status = 'aktif'";
+
+    if ($keyword !== '') {
+        $sql .= " AND (
+        nama LIKE ? 
+        OR alamat LIKE ?
+        OR kecamatan LIKE ?
+        OR kota LIKE ?
+        )";
+    }
+
+    //Mengurutkan data
+    $orderBy = ($sort === 'name') ? 'nama ASC' : 'id ASC';
+    $sql .= " ORDER BY " . $orderBy;
+
+    $stmt = $conn->prepare($sql);
+
+    if ($keyword !== '') {
+        $search = "%" . $keyword . "%";
+        $stmt->bind_param("ssss", $search, $search, $search, $search); 
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    return $data;
+}
+
+//Memastikan pengguna sudah login
+if (empty($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
+
+// Mengambil kata kunci pencarian dan pilihan pengurutan.
+$keyword = trim($_GET['keyword'] ?? '');
+$sort = $_GET['sort'] ?? 'default';
+
+// Memastikan pilihan pengurutan sesuai dengan pilihan yang tersedia.
+if (!in_array($sort, ['default', 'name'], true)) {
+    $sort = 'default';
+}
+
+// Mengambil daftar bank sampah berdasarkan pencarian dan pengurutan.
+$bankSampah = getBankSampah($conn, $keyword, $sort);
+
 ?>
 
 <!DOCTYPE html>
@@ -53,44 +96,39 @@ $bankSampah = [
             <p>“Temukan bank sampah terdekat dan mulai setor sampahmu.”</p>
         </section>
 
-        <section class="dl-search-section">
+<form method="GET" action="daftar_lokasi.php" class="dl-search-section">
 
-            <div class="dl-search-box">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7"></circle>
-                    <path d="m16 16 4 4"></path>
-                </svg>
+    <div class="dl-search-box">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m16 16 4 4"></path>
+        </svg>
 
-                <input
-                    type="text"
-                    id="searchBank"
-                    placeholder="Cari nama atau lokasi bank sampah"
-                    autocomplete="off"
-                >
-            </div>
+        <input
+            type="text"
+            name="keyword"
+            placeholder="Cari nama atau lokasi bank sampah"
+            value="<?= e($keyword) ?>"
+        >
+    </div>
 
-            <div class="dl-filter-wrapper">
-                <button type="button" class="dl-filter-button" id="filterButton">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M4 7h9"></path>
-                        <path d="M17 7h3"></path>
-                        <circle cx="15" cy="7" r="2"></circle>
-                        <path d="M4 17h3"></path>
-                        <path d="M11 17h9"></path>
-                        <circle cx="9" cy="17" r="2"></circle>
-                    </svg>
-                    Filter
-                </button>
+    <div class="dl-filter-wrapper">
+        <select name="sort" class="dl-filter-button">
+            <option value="default" <?= $sort === 'default' ? 'selected' : '' ?>>
+                Urutan awal
+            </option>
 
-                <div class="dl-filter-menu" id="filterMenu" hidden>
-                    <p>Urutkan berdasarkan</p>
-                    <button type="button" data-sort="default">Urutan awal</button>
-                    <button type="button" data-sort="distance">Jarak terdekat</button>
-                    <button type="button" data-sort="name">Nama A-Z</button>
-                </div>
-            </div>
+            <option value="name" <?= $sort === 'name' ? 'selected' : '' ?>>
+                Nama A-Z
+            </option>
+        </select>
+    </div>
 
-        </section>
+    <button type="submit" class="dl-filter-button">
+        Cari
+    </button>
+
+</form>
 
         <section class="dl-location-section">
 
@@ -103,47 +141,64 @@ $bankSampah = [
 
             <div class="dl-location-panel" id="locationList">
 
-                <?php foreach ($bankSampah as $bank): ?>
+                
+<?php foreach ($bankSampah as $bank): ?>
 
-                    <?php
-                    $mapsQuery = $bank['nama'] . ', ' . $bank['alamat'];
-                    $mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode($mapsQuery);
-                    ?>
+    <?php
+    // Menentukan lokasi yang akan dibuka di Google Maps.
+    if (
+        !empty($bank['latitude']) &&
+        !empty($bank['longitude'])
+    ) {
+        $mapsQuery = $bank['latitude'] . ',' . $bank['longitude'];
+    } else {
+        $mapsQuery = $bank['nama'] . ',' . $bank['alamat'];
+    }
 
-                    <article
-                        class="dl-location-card"
-                        data-name="<?= htmlspecialchars($bank['nama']); ?>"
-                        data-address="<?= htmlspecialchars($bank['alamat']); ?>"
-                        data-distance="<?= $bank['jarak_angka']; ?>"
-                    >
+    $mapsUrl = 'https://www.google.com/maps/search/?api=1&query='
+        . rawurlencode($mapsQuery);
+    ?>
 
-                        <div class="dl-recycle-icon">
-                            <span>♻</span>
-                        </div>
+    <div class="dl-location-card">
 
-                        <div class="dl-location-info">
-                            <h3><?= htmlspecialchars($bank['nama']); ?></h3>
-                            <p><?= htmlspecialchars($bank['alamat']); ?></p>
-                            <span><?= htmlspecialchars($bank['jarak']); ?> dari lokasimu</span>
-                        </div>
+        <div class="dl-recycle-icon">
+            <span>♻</span>
+        </div>
 
-                        <a
-                            href="<?= htmlspecialchars($mapsUrl, ENT_QUOTES, 'UTF-8'); ?>"
-                            class="dl-maps-button"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            Lihat Maps
-                            <span class="dl-maps-icon">↗</span>
-                        </a>
+        <div class="dl-location-info">
+            <h3><?= e($bank['nama']) ?></h3>
+            <p><?= e($bank['alamat']) ?></p>
+            <p>
+               <?= e($bank['kecamatan']) ?>
+               <?= !empty($bank['kota']) ? ',' . e($bank['kota']) : '' ?>
+            </p>
+            <p>No. telepon: <?= e($bank['no_telepon'] ?: 'Belum tersedia') ?></p>
+            <span>Jam operasional: <?= e($bank['jam_operasional'] ?: 'Belum tersedia') ?></span>
+        </div>
 
-                    </article>
+        <a
+            href="<?= e($mapsUrl) ?>"
+            class="dl-maps-button"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <span class="dl-maps-icon">↗</span>
+            Lihat Maps
+        </a>
 
-                <?php endforeach; ?>
+    </div>
 
-                <p class="dl-empty-message" id="emptyMessage" hidden>
-                    Bank sampah yang kamu cari tidak ditemukan.
-                </p>
+<?php endforeach; ?>
+
+<p
+    class="dl-empty-message"
+    id="emptyMessage"
+    <?= !empty($bankSampah) ? 'hidden' : '' ?>
+>
+    Bank sampah yang kamu cari tidak ditemukan.
+</p>
+</div>
+
 
             </div>
 
@@ -155,4 +210,4 @@ $bankSampah = [
     <script src="daftar_lokasi.js" defer></script>
 
 </body>
-</html>
+</html

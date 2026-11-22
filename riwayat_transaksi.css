@@ -138,6 +138,9 @@
 }
 
 .rt-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-height: 42px;
     padding: 0 22px;
     border: none;
@@ -147,6 +150,7 @@
     font-family: inherit;
     font-size: 13px;
     font-weight: 600;
+    text-decoration: none;
     cursor: pointer;
     transition: background .2s ease;
 }

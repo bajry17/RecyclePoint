@@ -1,3 +1,132 @@
+<?php
+session_start();
+
+require_once 'koneksi.php';
+
+// Memastikan pengguna sudah login.
+if (empty($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
+
+// Mengambil ID pengguna yang sedang login.
+$userId = (int) $_SESSION['user_id'];
+
+// Menghitung ringkasan poin milik pengguna.
+function getRingkasanPoin(mysqli $conn, int $userId): array
+{
+    $sql = "SELECT
+                COALESCE((
+                    SELECT SUM(total_poin)
+                    FROM setoran
+                    WHERE user_id = ?
+                    AND status = 'berhasil'
+                ), 0) AS poin_masuk,
+
+                COALESCE((
+                    SELECT SUM(poin_dipakai)
+                    FROM penukaran_poin
+                    WHERE user_id = ?
+                    AND status IN ('diproses', 'berhasil')
+                ), 0) AS poin_keluar";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $userId, $userId);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $data = $result->fetch_assoc();
+
+    $stmt->close();
+
+    $poinMasuk = (int) $data['poin_masuk'];
+    $poinKeluar = (int) $data['poin_keluar'];
+
+    return [
+        'poin_masuk' => $poinMasuk,
+        'poin_keluar' => $poinKeluar,
+        'total_poin' => max(0, $poinMasuk - $poinKeluar)
+    ];
+}
+
+
+// Mengambil riwayat transaksi pengguna.
+function getRiwayatTransaksi(mysqli $conn, int $userId): array
+{
+    $sql = "
+        SELECT *
+        FROM (
+            SELECT
+                CONCAT('S-', s.id) AS kode_transaksi,
+                s.waktu_setor AS tanggal,
+                CONCAT(
+                    'Setoran sampah - ',
+                    COALESCE(b.nama, 'Bank Sampah')
+                ) AS keterangan,
+                'Poin Masuk' AS jenis_transaksi,
+                'masuk' AS tipe,
+                s.total_poin AS jumlah_poin
+            FROM setoran s
+            LEFT JOIN bank_sampah b
+                ON b.id = s.bank_sampah_id
+            WHERE s.user_id = ?
+            AND s.status = 'berhasil'
+
+            UNION ALL
+
+            SELECT
+                CONCAT('T-', p.id) AS kode_transaksi,
+                p.created_at AS tanggal,
+                CONCAT(
+                    'Penukaran poin - ',
+                    p.nama_produk
+                ) AS keterangan,
+                'Poin Keluar' AS jenis_transaksi,
+                'keluar' AS tipe,
+                p.poin_dipakai AS jumlah_poin
+            FROM penukaran_poin p
+            WHERE p.user_id = ?
+            AND p.status IN ('diproses', 'berhasil')
+        ) AS transaksi
+        ORDER BY tanggal DESC
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $userId, $userId);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+
+    $stmt->close();
+
+    return $data;
+}
+
+
+// Mengambil data ringkasan dan riwayat transaksi.
+$ringkasan = getRingkasanPoin($conn, $userId);
+$riwayatTransaksi = getRiwayatTransaksi($conn, $userId);
+
+// Menentukan filter riwayat transaksi.
+$filter = $_GET['filter'] ?? 'semua';
+
+if (!in_array($filter, ['semua', 'masuk', 'keluar'], true)) {
+    $filter = 'semua';
+}
+
+// Menyaring transaksi sesuai filter yang dipilih.
+$transaksiTampil = $riwayatTransaksi;
+
+if ($filter !== 'semua') {
+    $transaksiTampil = array_values(array_filter(
+        $riwayatTransaksi,
+        function ($transaksi) use ($filter) {
+            return $transaksi['tipe'] === $filter;
+        }
+    ));
+}
+?>
 
 <!DOCTYPE html>
 <html lang="id">
@@ -38,7 +167,7 @@
                 <div class="rt-card__icon">★</div>
                 <div>
                     <p>Total Poin</p>
-                    <strong>1.250</strong>
+                    <strong><?= number_format($ringkasan['total_poin'], 0, ',', '.') ?></strong>
                     <span>Poin tersedia</span>
                 </div>
             </article>
@@ -47,7 +176,7 @@
                 <div class="rt-card__icon rt-card__icon--in">↗</div>
                 <div>
                     <p>Total Poin Masuk</p>
-                    <strong class="rt-in">+85</strong>
+                    <strong class="rt-in">+<?= number_format($ringkasan['poin_masuk'], 0, ',', '.') ?></strong>
                     <span>Akumulasi poin masuk</span>
                 </div>
             </article>
@@ -56,7 +185,7 @@
                 <div class="rt-card__icon rt-card__icon--out">↙</div>
                 <div>
                     <p>Total Poin Keluar</p>
-                    <strong class="rt-out">-15</strong>
+                    <strong class="rt-out">-<?= number_format($ringkasan['poin_keluar'], 0, ',', '.') ?></strong>
                     <span>Akumulasi poin digunakan</span>
                 </div>
             </article>
@@ -76,26 +205,20 @@
             <!-- Filter transaksi -->
             <div class="rt-tabs" role="group" aria-label="Filter transaksi">
 
-                <button class="rt-tab active"
-                        type="button"
-                        data-filter="semua"
-                        aria-pressed="true">
-                    Semua
-                </button>
+                <a href="riwayat_transaksi.php?filter=semua"
+                    class="rt-tab <?= $filter === 'semua' ? 'active' : '' ?>">
+                     Semua
+                </a>
 
-                <button class="rt-tab"
-                        type="button"
-                        data-filter="masuk"
-                        aria-pressed="false">
-                    Poin Masuk
-                </button>
+                <a href="riwayat_transaksi.php?filter=masuk"
+                    class="rt-tab <?= $filter === 'masuk' ? 'active' : '' ?>">
+                     Poin Masuk
+                </a>
 
-                <button class="rt-tab"
-                        type="button"
-                        data-filter="keluar"
-                        aria-pressed="false">
-                    Poin Keluar
-                </button>
+                <a href="riwayat_transaksi.php?filter=keluar"
+                    class="rt-tab <?= $filter === 'keluar' ? 'active' : '' ?>">
+                     Poin Keluar
+                </a>
 
             </div>
 
@@ -115,63 +238,50 @@
                         </tr>
                     </thead>
 
+                    
                     <tbody id="rtTableBody">
 
-                        <tr data-type="masuk">
-                            <td>12 Nov 2026</td>
-                            <td>
-                                <strong>Setor Sampah Plastik</strong>
-                                <small>Bank Sampah Asri</small>
-                            </td>
-                            <td>
-                                <span class="rt-type rt-type--in">Poin Masuk</span>
-                            </td>
-                            <td class="rt-amount rt-amount--in">+20 Poin</td>
-                        </tr>
+                        <?php foreach ($transaksiTampil as $transaksi): ?>
+                            <?php
+                            $isMasuk = $transaksi['tipe'] === 'masuk';
+                            $tanggal = date('d M Y', strtotime($transaksi['tanggal']));
+                            $jumlahPoin = (int) $transaksi['jumlah_poin'];
+                            ?>
 
-                        <tr data-type="keluar">
-                            <td>9 Nov 2026</td>
-                            <td>
-                                <strong>Penukaran Poin</strong>
-                                <small>Top-up Pulsa</small>
-                            </td>
-                            <td>
-                                <span class="rt-type rt-type--out">Poin Keluar</span>
-                            </td>
-                            <td class="rt-amount rt-amount--out">-15 Poin</td>
-                        </tr>
+                            <tr data-type="<?= htmlspecialchars($transaksi['tipe'], ENT_QUOTES, 'UTF-8') ?>">
+                                <td><?= htmlspecialchars($tanggal, ENT_QUOTES, 'UTF-8') ?></td>
 
-                        <tr data-type="masuk">
-                            <td>5 Nov 2026</td>
-                            <td>
-                                <strong>Setor Sampah Plastik</strong>
-                                <small>Bank Sampah Harapan</small>
-                            </td>
-                            <td>
-                                <span class="rt-type rt-type--in">Poin Masuk</span>
-                            </td>
-                            <td class="rt-amount rt-amount--in">+10 Poin</td>
-                        </tr>
+                                <td>
+                                    <strong>
+                                        <?= htmlspecialchars($transaksi['keterangan'], ENT_QUOTES, 'UTF-8') ?>
+                                    </strong>
+                                    <small>
+                                        <?= htmlspecialchars($transaksi['kode_transaksi'], ENT_QUOTES, 'UTF-8') ?>
+                                    </small>
+                                </td>
 
-                        <tr data-type="masuk">
-                            <td>1 Nov 2026</td>
-                            <td>
-                                <strong>Setor Sampah Plastik</strong>
-                                <small>Bank Sampah Bumi Hijau</small>
-                            </td>
-                            <td>
-                                <span class="rt-type rt-type--in">Poin Masuk</span>
-                            </td>
-                            <td class="rt-amount rt-amount--in">+5 Poin</td>
-                        </tr>
+                                <td>
+                                    <span class="rt-type <?= $isMasuk ? 'rt-type--in' : 'rt-type--out' ?>">
+                                        <?= htmlspecialchars($transaksi['jenis_transaksi'], ENT_QUOTES, 'UTF-8') ?>
+                                    </span>
+                                </td>
+
+                                <td class="rt-amount <?= $isMasuk ? 'rt-amount--in' : 'rt-amount--out' ?>">
+                                    <?= $isMasuk ? '+' : '-' ?><?= number_format($jumlahPoin, 0, ',', '.') ?> Poin
+                                </td>
+                            </tr>
+
+                        <?php endforeach; ?>
 
                     </tbody>
 
                 </table>
 
-                <p class="rt-empty" id="rtEmpty" hidden>
-                    Belum ada transaksi pada kategori ini.
-                </p>
+                <?php if (empty($transaksiTampil)): ?>
+                    <p class="rt-empty" id="rtEmpty">
+                        Belum ada transaksi pada kategori ini.
+                    </p>
+                <?php endif; ?>
 
             </div>
 
@@ -180,7 +290,6 @@
     </main>
 
     <script src="header/sidebar.js" defer></script>
-    <script src="riwayat_transaksi.js" defer></script>
 
 </body>
 </html
