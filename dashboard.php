@@ -1,3 +1,171 @@
+<?php
+session_start();
+
+// Asumsi: koneksi.php mendefinisikan $conn (mysqli); login mengisi $_SESSION['user_id'].
+require_once 'koneksi.php';
+
+if (empty($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
+$userId = (int) $_SESSION['user_id'];
+
+/* ---------- HELPER MYSQLI (prepared statement) ---------- */
+// $types: string tipe bind_param ('i' int, 's' string, 'd' desc), $params: array nilai
+if (!function_exists('dbAll')) {
+    function dbAll(string $sql, string $types = '', array $params = []): array
+    {
+        global $conn;
+        $st = $conn->prepare($sql);
+        if ($types !== '') $st->bind_param($types, ...$params);
+        $st->execute();
+        $rows = $st->get_result()->fetch_all(MYSQLI_ASSOC);
+        $st->close();
+        return $rows;
+    }
+}
+if (!function_exists('dbRow')) {
+    function dbRow(string $sql, string $types = '', array $params = []): ?array
+    {
+        return dbAll($sql, $types, $params)[0] ?? null;
+    }
+}
+
+/* ---------- HELPER TAMPILAN ---------- */
+if (!function_exists('formatTanggal')) {
+    function formatTanggal(string $datetime, bool $denganJam = true): string
+    {
+        $bulan = [1 => 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        $t   = strtotime($datetime);
+        $out = date('j', $t) . ' ' . $bulan[(int) date('n', $t)] . ' ' . date('Y', $t);
+        return $denganJam ? $out . ', ' . date('H:i', $t) : $out;
+    }
+}
+if (!function_exists('waktuRelatif')) {
+    function waktuRelatif(string $datetime): string
+    {
+        $s = time() - strtotime($datetime);
+        if ($s < 60)     return 'Baru saja';
+        if ($s < 3600)   return floor($s / 60) . ' menit lalu';
+        if ($s < 86400)  return floor($s / 3600) . ' jam lalu';
+        if ($s < 172800) return 'Kemarin';
+        if ($s < 604800) return floor($s / 86400) . ' hari lalu';
+        return formatTanggal($datetime, false);
+    }
+}
+
+/* ---------- FUNCTION DASHBOARD ---------- */
+
+// Ringkasan: nama_panggilan, poin, total_berat_kg, jumlah_setoran, notif_belum_dibaca
+function getRingkasanUser(int $userId): array
+{
+    return dbRow('SELECT * FROM v_ringkasan_user WHERE user_id = ?', 'i', [$userId]) ?? [
+        'user_id' => $userId, 'nama_panggilan' => '', 'poin' => 0,
+        'total_berat_kg' => 0, 'jumlah_setoran' => 0, 'notif_belum_dibaca' => 0,
+    ];
+}
+
+// Setoran terbaru: id, kode, status, waktu_setor, total_berat_kg, total_poin, bank_sampah, jenis_sampah
+function getSetoranTerbaru(int $userId, int $limit = 5): array
+{
+    return dbAll(
+        'SELECT id, kode, status, waktu_setor, total_berat_kg, total_poin, bank_sampah, jenis_sampah
+           FROM v_riwayat_setor
+          WHERE user_id = ?
+          ORDER BY waktu_setor DESC
+          LIMIT ?',
+        'ii', [$userId, $limit]
+    );
+}
+
+// Notifikasi terbaru: id, kategori, judul, isi_pesan, dibaca_at, created_at
+function getNotifTerbaru(int $userId, int $limit = 3): array
+{
+    return dbAll(
+        'SELECT id, kategori, judul, isi_pesan, dibaca_at, created_at
+           FROM notifikasi
+          WHERE user_id = ?
+          ORDER BY created_at DESC
+          LIMIT ?',
+        'ii', [$userId, $limit]
+    );
+}
+
+// Total kg & poin per jenis sampah (untuk chart). Hanya setoran 'berhasil'.
+function getStatistikPerJenis(int $userId): array
+{
+    return dbAll(
+        "SELECT j.nama AS jenis, SUM(i.berat_kg) AS total_kg, SUM(i.poin_didapat) AS total_poin
+           FROM setoran s
+           JOIN setoran_item i ON i.setoran_id = s.id
+           JOIN jenis_sampah j ON j.id = i.jenis_sampah
+          WHERE s.user_id = ? AND s.status = 'berhasil'
+          GROUP BY j.id, j.nama
+          ORDER BY total_kg DESC",
+        'i', [$userId]
+    );
+}
+
+// Total kg & poin per bulan (untuk chart tren), default 6 bulan terakhir.
+function getStatistikBulanan(int $userId, int $jumlahBulan = 6): array
+{
+    return dbAll(
+        "SELECT DATE_FORMAT(waktu_setor, '%Y-%m') AS bulan,
+                SUM(total_berat_kg) AS total_kg,
+                SUM(total_poin)     AS total_poin,
+                COUNT(*)            AS jumlah_setoran
+           FROM setoran
+          WHERE user_id = ?
+            AND status = 'berhasil'
+            AND waktu_setor >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL ? MONTH)
+          GROUP BY bulan
+          ORDER BY bulan ASC",
+        'ii', [$userId, $jumlahBulan - 1]
+    );
+}
+
+// Alamat user: alamat_rumah, kode_pos
+function getProfilUser(int $userId): array
+{
+    return dbRow('SELECT alamat_rumah, kode_pos FROM users WHERE id = ?', 'i', [$userId])
+        ?? ['alamat_rumah' => null, 'kode_pos' => null];
+}
+
+// Jumlah hadiah yang tersedia di marketplace poin (aktif & stok ada)
+function getJumlahHadiah(): int
+{
+    return (int) (dbRow('SELECT COUNT(*) AS n FROM produk_poin WHERE aktif = 1 AND stok > 0')['n'] ?? 0);
+}
+
+// Bank sampah paling relevan untuk user: prioritas kode pos sama, lalu kota sama, lalu yang pertama aktif.
+function getBankSampahTerdekat(int $userId): ?array
+{
+    return dbRow(
+        "SELECT b.id, b.nama, b.alamat, b.jam_operasional
+           FROM bank_sampah b
+           JOIN users u ON u.id = ?
+          WHERE b.status = 'aktif'
+          ORDER BY COALESCE(b.kode_pos = u.kode_pos, 0) DESC,
+                   COALESCE(b.kota_id = u.kota, 0) DESC,
+                   b.id ASC
+          LIMIT 1",
+        'i', [$userId]
+    );
+}
+
+
+
+/* ---------- DATA UNTUK HTML ---------- */
+$ringkasan   = getRingkasanUser($userId);       // $ringkasan['poin'], ['total_berat_kg'], ['jumlah_setoran'], ['notif_belum_dibaca']
+$setoranBaru = getSetoranTerbaru($userId, 5);   // loop: foreach ($setoranBaru as $s)
+$notifBaru   = getNotifTerbaru($userId, 3);     // loop: foreach ($notifBaru as $n)
+$perJenis    = getStatistikPerJenis($userId);   // chart pie/bar
+$perBulan    = getStatistikBulanan($userId, 6); // chart garis/bar
+$profil       = getProfilUser($userId);          // alamat untuk sapaan
+$jumlahHadiah = getJumlahHadiah();               // kartu "Hadiah Tersedia"
+$bankTerdekat = getBankSampahTerdekat($userId);  // panel lokasi bank sampah
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -38,22 +206,22 @@
   <main class="page dash">
     <!-- Sapaan -->
     <section class="dash-greet">
-        <h2>Halo, Dudung!</h2>
-        <p><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a7.5 7.5 0 0 0-7.5 7.5C4.5 15 12 22 12 22s7.5-7 7.5-12.5A7.5 7.5 0 0 0 12 2zm0 10.5a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>Jl. Melati No. 24, Coblong, Kota Bandung, Jawa Barat</p>
+        <h2>Halo, <?= htmlspecialchars($ringkasan['nama_panggilan']) ?>!</h2>
+        <p><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a7.5 7.5 0 0 0-7.5 7.5C4.5 15 12 22 12 22s7.5-7 7.5-12.5A7.5 7.5 0 0 0 12 2zm0 10.5a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg><?php if (!empty($profil['alamat_rumah'])): ?><?= htmlspecialchars($profil['alamat_rumah']) ?><?= !empty($profil['kode_pos']) ? ', ' . htmlspecialchars($profil['kode_pos']) : '' ?><?php else: ?>Alamat belum diisi<?php endif; ?></p>
       </section>
 
     <!-- Statistik -->
     <section class="dash-stats" aria-label="Ringkasan">
         <a class="dash-stat" href="riwayat_transaksi.php">
           <svg class="dash-stat__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6.5l1.7 3.5 3.8.5-2.8 2.6.7 3.8-3.4-1.9-3.4 1.9.7-3.8L6.5 10.5l3.8-.5z"/></svg>
-          <span class="dash-stat__txt"><strong>999999</strong><span>Poin Anda</span></span>
+          <span class="dash-stat__txt"><strong><?= number_format((int) $ringkasan['poin'], 0, ',', '.') ?></strong><span>Poin Anda</span></span>
           <i class="dash-chev" aria-hidden="true"></i></a>
         <div class="dash-stat">
           <svg class="dash-stat__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8.5 9a3.5 3.5 0 1 1 7 0h3.2a1.5 1.5 0 0 1 1.5 1.3l1.3 9.5a1.5 1.5 0 0 1-1.5 1.7H4a1.5 1.5 0 0 1-1.5-1.7l1.3-9.5A1.5 1.5 0 0 1 5.3 9zm5 0a1.5 1.5 0 1 0-3 0zm-1.5 3.5l2.2 3.2-1.4 1-2.2-3.2z"/></svg>
-          <span class="dash-stat__txt"><strong>6,5 Kg</strong><span>Sampah Terkumpul</span></span></div>
+          <span class="dash-stat__txt"><strong><?= number_format((float) $ringkasan['total_berat_kg'], 1, ',', '.') ?> Kg</strong><span>Sampah Terkumpul</span></span></div>
         <a class="dash-stat" href="marketpoin.php">
           <svg class="dash-stat__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 8h18v4H3zM4 13h7v8H4zM13 13h7v8h-7zM11 8h2v13h-2zM12 8C8.5 8 7 5 9 4s3 1.5 3 4zm0 0c3.5 0 5-3 3-4s-3 1.5-3 4z"/></svg>
-          <span class="dash-stat__txt"><strong>4</strong><span>Hadiah Tersedia</span></span>
+          <span class="dash-stat__txt"><strong><?= (int) $jumlahHadiah ?></strong><span>Hadiah Tersedia</span></span>
           <i class="dash-chev" aria-hidden="true"></i></a>
        
       </section>
@@ -66,7 +234,7 @@
             <h3 id="loc-title">Lokasi Bank Sampah Terdekat</h3>
             <a href="daftar_lokasi.php">Selanjutnya <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 1l5 4-5 4zM8 1h1.5v8H8z"/></svg></a>
           </div>
-          <div class="dash-map" role="img" aria-label="Peta: Bank Sampah Asri, 1 km dari lokasi Anda">
+          <div class="dash-map" role="img" aria-label="Peta: <?= $bankTerdekat ? htmlspecialchars($bankTerdekat['nama'] . ', ' . $bankTerdekat['alamat']) : 'Belum ada bank sampah' ?>">
             <svg class="dash-map__bg" viewBox="0 0 500 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
               <rect width="500" height="160" fill="#F3E6DF"/>
               <path d="M0 20L120 0h40L0 60zM330 160l120-70 50 10v60z" fill="#DDEFD2"/>
@@ -78,7 +246,11 @@
               <span class="dash-map__pin" aria-hidden="true">
                 <svg width="52" height="62" viewBox="0 0 52 62"><path d="M26 61S3 40 3 24a23 23 0 0 1 46 0C49 40 26 61 26 61z" fill="#1F9D5C"/><circle cx="26" cy="24" r="14" fill="#fff"/><g transform="translate(26 24)" fill="none" stroke="#1F9D5C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M-6 6l-3-5 3-5M6-6l3 5-3 5M-3-8h5M-2 8h5"/></g></svg>
               </span>
-              <span class="dash-map__txt"><strong>Bank Sampah Asri</strong><span>1 km dari lokasi Anda</span></span>
+              <?php if ($bankTerdekat): ?>
+              <span class="dash-map__txt"><strong><?= htmlspecialchars($bankTerdekat['nama']) ?></strong><span><?= htmlspecialchars($bankTerdekat['alamat']) ?></span></span>
+              <?php else: ?>
+              <span class="dash-map__txt"><strong>Belum ada bank sampah</strong><span>Lokasi belum tersedia</span></span>
+              <?php endif; ?>
               <i class="dash-chev dash-chev--dark" aria-hidden="true"></i>
             </div>
           </div>
@@ -91,14 +263,18 @@
             <a href="riwayat_setor.php">Selanjutnya <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 1l5 4-5 4zM8 1h1.5v8H8z"/></svg></a>
           </div>
           <ul class="dash-trx">
+             <?php if (empty($setoranBaru)): ?>
             <li>
-              <div><strong>Setor Sampah Plastik</strong><span>12 Nov 2026 &nbsp; 14.30</span></div>
-              <b>+20 Poin</b>
+              <div><strong>Belum ada transaksi</strong><span>Setor sampah pertamamu sekarang</span></div>
             </li>
+             <?php else: ?>
+              <?php foreach (array_slice($setoranBaru, 0, 2) as $s): ?>
             <li>
-              <div><strong>Setor Sampah Kertas</strong><span>8 Nov 2026 &nbsp; 16.20</span></div>
-              <b>+15 Poin</b>
+              <div><strong>Setor Sampah <?= htmlspecialchars($s['jenis_sampah']) ?></strong><span><?= formatTanggal($s['waktu_setor'], false) ?> &nbsp; <?= date('H.i', strtotime($s['waktu_setor'])) ?></span></div>
+              <b><?= $s['status'] === 'berhasil' ? '+' . number_format((int) $s['total_poin'], 0, ',', '.') . ' Poin' : htmlspecialchars(ucfirst($s['status'])) ?></b>
             </li>
+              <?php endforeach; ?>
+            <?php endif; ?>
           </ul>
         </section>
       </div>
