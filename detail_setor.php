@@ -1,19 +1,13 @@
 <?php
 session_start();
-
 require_once 'koneksi.php';
 
-if (empty($_SESSION['user_id'])) {
-    header('Location: index.php');
-    exit;
-}
+if (empty($_SESSION['user_id'])) { header('Location: index.php'); exit; }
 $userId = (int) $_SESSION['user_id'];
 
 function e($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
-// 1.20 -> "1,2" | 2.00 -> "2"
 function kg($v) { return rtrim(rtrim(number_format((float) $v, 2, ',', '.'), '0'), ','); }
 
-// detail_setor.php?kode=RP-1211-00128 ; tanpa kode = setoran terbaru milik user
 $kode = trim($_GET['kode'] ?? '');
 $stmt = $conn->prepare(
     'SELECT s.id, s.kode, s.status, s.total_berat_kg, s.total_poin, s.waktu_setor,
@@ -31,40 +25,24 @@ $s = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if ($s) {
-    $stmt = $conn->prepare(
-        'SELECT jenis_sampah AS nama, i.berat_kg, i.poin_didapat
-           FROM setoran_item i
-          WHERE i.setoran_id = ?
-       ORDER BY i.id'
-    );
+    $stmt = $conn->prepare('SELECT jenis_sampah, berat_kg, poin_didapat FROM setoran_item WHERE setoran_id = ? ORDER BY id');
     $stmt->bind_param('i', $s['id']);
     $stmt->execute();
     $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
+    $berat = $items ? array_sum(array_column($items, 'berat_kg'))     : $s['total_berat_kg'];
+    $poin  = $items ? array_sum(array_column($items, 'poin_didapat')) : $s['total_poin'];
+
     $bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
               'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    $w       = new DateTime($s['waktu_setor']);
-    $tanggal = $w->format('j') . ' ' . $bulan[(int) $w->format('n')] . ' ' . $w->format('Y');
-    $jam     = $w->format('H.i') . ' WIB';
-    $jenis   = implode(', ', array_unique(array_column($items, 'jenis')));
-
+    $w    = new DateTime($s['waktu_setor']);
     $info = [
-        'Jenis'        => 'Setor Sampah ' . $jenis,
-        'ID Transaksi' => $s['kode'],
-        'Tanggal'      => $tanggal,
-        'Waktu'        => $jam,
-        'Petugas'      => $s['petugas'] ?? '-',
-        'Lokasi'       => $s['bank_sampah'],
+        'Tanggal' => $w->format('j') . ' ' . $bulan[(int) $w->format('n')] . ' ' . $w->format('Y'),
+        'Waktu'   => $w->format('H.i') . ' WIB',
+        'Petugas' => $s['petugas'] ?? '-',
+        'Lokasi'  => $s['bank_sampah'],
     ];
-    // [judul, keterangan, jam] - hanya tahap terakhir yang punya jam (waktu_setor)
-    $tahap = [
-        ['Setoran diajukan',    'Sampah jenis ' . mb_strtolower($jenis), ''],
-        ['Diterima petugas',    'Petugas memeriksa dan memilahnya', ''],
-        ['Penimbangan selesai', 'Total berat terverifikasi ' . kg($s['total_berat_kg']) . ' kg', ''],
-        ['Poin masuk ke akun',  '+' . $s['total_poin'] . ' poin ditambahkan', $jam],
-    ];
-    $cek = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
 } else {
     http_response_code(404);
 }
@@ -95,72 +73,47 @@ if ($s) {
     <div class="ds-heading">
       <h1 class="page__title">Detail Setor Sampah</h1>
       <?php if ($s): ?>
-        <div class="ds-actions">
-          <button type="button" class="ds-button ds-button--orange" onclick="window.print()">Cetak bukti</button>
-        </div>
+        <div class="ds-actions"><button type="button" class="ds-button" onclick="window.print()">Cetak bukti</button></div>
       <?php endif; ?>
     </div>
 
   <?php if (!$s): ?>
 
-    <section class="ds-info-card">
+    <section class="ds-card ds-info">
       <h2>Setoran tidak ditemukan</h2>
       <p>Data setoran tidak ada atau bukan milik akun Anda. <a href="riwayat_setor.php">Kembali ke Riwayat Setor</a></p>
     </section>
 
   <?php else: ?>
 
-    <?php if ($s['status'] === 'berhasil'): ?>
-    <section class="ds-timeline-card">
-      <span class="ds-success">Berhasil</span>
-      <div class="ds-timeline">
-        <?php foreach ($tahap as $i => [$judul, $ket, $waktu]): ?>
-          <div class="ds-step<?= $i === 3 ? ' ds-step--last' : '' ?>">
-            <div class="ds-step__circle"><?= $cek ?></div>
-            <strong><?= e($judul) ?></strong>
-            <p><?= e($ket) ?></p>
-            <?php if ($waktu): ?><time><?= e($waktu) ?></time><?php endif; ?>
-          </div>
-        <?php endforeach; ?>
-      </div>
+    <section class="ds-banner">
+      <span class="ds-badge ds-badge--<?= e($s['status']) ?>"><?= e(ucfirst($s['status'])) ?></span>
+      <h2><?= e($s['kode']) ?></h2>
+      <div class="ds-total"><p>Total berat</p><strong><?= e(kg($berat)) ?><small>kg</small></strong></div>
+      <div class="ds-total ds-total--orange"><p>Poin diperoleh</p><strong>+<?= e($poin) ?><small>poin</small></strong></div>
     </section>
-    <?php endif; ?>
 
     <div class="ds-content">
 
-      <section class="ds-info-card">
+      <section class="ds-card ds-info">
         <h2>Informasi</h2>
         <?php foreach ($info as $label => $nilai): ?>
-          <div class="ds-info-row"><span><?= e($label) ?></span><strong><?= e($nilai) ?></strong></div>
+          <div class="ds-row"><span><?= e($label) ?></span><strong><?= e($nilai) ?></strong></div>
         <?php endforeach; ?>
       </section>
 
-      <div class="ds-right-column">
-
-        <section class="ds-total-card">
-          <div class="ds-total-item">
-            <p>Total berat</p>
-            <strong><?= e(kg($s['total_berat_kg'])) ?> <small>kg</small></strong>
+      <section class="ds-card ds-detail">
+        <h2>Rincian Item Sampah</h2>
+        <div class="ds-row ds-head"><span>Detail</span><span>Berat</span><span>Poin</span></div>
+        <?php foreach ($items as $it): ?>
+          <div class="ds-row">
+            <span><?= e($it['jenis_sampah']) ?></span>
+            <span><?= e(kg($it['berat_kg'])) ?> kg</span>
+            <strong>+<?= e($it['poin_didapat']) ?></strong>
           </div>
-          <div class="ds-total-item ds-total-item--orange">
-            <p>Poin diperoleh</p>
-            <strong>+<?= e($s['total_poin']) ?> <small>poin</small></strong>
-          </div>
-        </section>
+        <?php endforeach; ?>
+      </section>
 
-        <section class="ds-detail-card">
-          <h2>Rincian Item Sampah</h2>
-          <div class="ds-table-row ds-table-head"><span>Detail</span><span>Berat</span><span>Poin</span></div>
-          <?php foreach ($items as $it): ?>
-            <div class="ds-table-row">
-              <span><?= e($it['nama']) ?></span>
-              <span><?= e(kg($it['berat_kg'])) ?> kg</span>
-              <strong>+<?= e($it['poin_didapat']) ?></strong>
-            </div>
-          <?php endforeach; ?>
-        </section>
-
-      </div>
     </div>
 
   <?php endif; ?>

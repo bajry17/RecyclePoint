@@ -1,12 +1,11 @@
+
 <?php
 session_start();
 
-// Asumsi: koneksi.php mendefinisikan $conn (mysqli)
 require_once 'koneksi.php';
 
 function e($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
 
-// Jika sudah login, langsung ke dashboard
 if (!empty($_SESSION['user_id'])) {
     header('Location: dashboard.php');
     exit;
@@ -40,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
 
         if ($user && password_verify($password, $user['password_hash'])) {
-            // Cegah session fixation
             session_regenerate_id(true);
             $_SESSION['user_id']   = (int) $user['id'];
             $_SESSION['nama']      = $user['nama_panggilan'];
@@ -51,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Pesan sama untuk email salah / password salah (tidak membocorkan akun mana yang ada)
         $error = 'Email atau kata sandi salah.';
     }
 }
@@ -110,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               type="email"
               id="email"
               name="email"
-              placeholder="example@email.com"
+              placeholder="Masukkan email"
               value="<?= e($email) ?>"
               required
             >
@@ -122,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               type="password"
               id="password"
               name="password"
-              placeholder="••••••••"
+              placeholder="Masukkan kata sandi"
               required
             >
           </div>

@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 
@@ -5,7 +6,6 @@ require_once 'koneksi.php';
 
 function e($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
 
-// Jika sudah login, langsung arahkan ke dashboard
 if (!empty($_SESSION['user_id'])) {
     header('Location: dashboard.php');
     exit;
@@ -35,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit('Permintaan tidak valid.');
     }
 
-    // Ambil dan bersihkan input
     foreach ($old as $key => $default) {
         $old[$key] = trim($_POST[$key] ?? $default);
     }
@@ -43,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password   = $_POST['password'] ?? '';
     $konfirmasi = $_POST['konfirmasi'] ?? '';
 
-    // Validasi input
     if ($old['nama'] === '') {
         $errors[] = 'Nama lengkap wajib diisi.';
     }
@@ -75,7 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Konfirmasi kata sandi tidak sesuai.';
     }
 
-    // Cek apakah email sudah terdaftar
     if (empty($errors)) {
         $cekStmt = $conn->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
         $cekStmt->bind_param('s', $old['email']);
@@ -88,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Simpan ke database jika semua valid
     if (empty($errors)) {
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
@@ -116,7 +112,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $insertStmt->execute();
         $insertStmt->close();
 
-        // Regenerasi token CSRF & arahkan ke halaman login
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
         header('Location: index.php?registered=1');
         exit;
@@ -183,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               type="text"
               id="nama"
               name="nama"
-              placeholder="Dudung Somat"
+              placeholder="Masukkan nama lengkap"
               value="<?= e($old['nama']) ?>"
               required
             >
@@ -195,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               type="text"
               id="panggilan"
               name="panggilan"
-              placeholder="Dudung"
+              placeholder="Masukkan nama panggilan"
               value="<?= e($old['panggilan']) ?>"
               required
             >
@@ -207,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               type="tel"
               id="hp"
               name="hp"
-              placeholder="081287939220"
+              placeholder="Masukkan no. hp"
               value="<?= e($old['hp']) ?>"
               required
             >
@@ -219,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               type="email"
               id="email"
               name="email"
-              placeholder="dudung123@gmail.com"
+              placeholder="Masukkan email"
               value="<?= e($old['email']) ?>"
               required
             >
@@ -239,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               type="text"
               id="alamat"
               name="alamat"
-              placeholder="Jl. Melati No. 24"
+              placeholder="Masukkan alamat"
               value="<?= e($old['alamat']) ?>"
               required
             >
@@ -268,7 +263,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               type="text"
               id="kodepos"
               name="kodepos"
-              placeholder="10310"
+              placeholder="Masukkan kode pos"
               inputmode="numeric"
               maxlength="5"
               value="<?= e($old['kodepos']) ?>"
@@ -282,7 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               type="password"
               id="password"
               name="password"
-              placeholder="••••••••"
+              placeholder="Masukkan kata sandi"
               minlength="8"
               required
             >
@@ -294,7 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               type="password"
               id="konfirmasi"
               name="konfirmasi"
-              placeholder="••••••••"
+              placeholder="Masukkan ulang kata sandi"
               minlength="8"
               required
             >
@@ -368,7 +363,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     provinsi.addEventListener("change", () => isiKota());
     kota.addEventListener("change", () => isiKecamatan());
 
-    // Set pilihan awal sesuai data terakhir (atau default Jakarta Pusat -> Menteng)
     isiKota(<?= json_encode($old['kota']) ?>, <?= json_encode($old['kecamatan']) ?>);
 
     document.querySelector("form").addEventListener("submit", function(event) {
