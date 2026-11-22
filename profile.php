@@ -40,10 +40,10 @@ $bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
           'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 $tgl = new DateTime($user['created_at']);
 $bergabung = $bulan[(int) $tgl->format('n')] . ' ' . $tgl->format('Y');
-
-// Alamat: provinsi/kota/kecamatan hanya tersimpan sebagai id (tidak ada tabel wilayah),
-// jadi yang ditampilkan alamat rumah + kode pos.
-$alamatParts = array_filter([$user['alamat_rumah'], $user['kode_pos']], 'strlen');
+$alamatParts = array_filter(
+    [$user['alamat_rumah'], $user['kecamatan'], $user['kota'], $user['provinsi'], $user['kode_pos']],
+    'strlen'
+);
 $alamat = $alamatParts ? implode(', ', $alamatParts) : '-';
 
 $badgeRole = ucfirst($user['role']);

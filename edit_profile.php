@@ -93,7 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($form['pos'] !== '' && !preg_match('/^[0-9]{5}$/', $form['pos'])) {
         $errors[] = 'Kode pos harus 5 digit angka.';
     }
-    // Wilayah bertingkat: kota harus milik provinsi, kecamatan harus milik kota
     if ($form['provinsi'] !== '' && !isset($wilayah[$form['provinsi']])) {
         $errors[] = 'Provinsi tidak valid.';
     } elseif ($form['kota'] !== '' && !isset($wilayah[$form['provinsi']][$form['kota']])) {
