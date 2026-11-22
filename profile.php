@@ -28,7 +28,7 @@ $stmt->close();
 // Sesi tidak valid (user sudah dihapus) -> paksa login ulang
 if (!$user) {
     session_destroy();
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 

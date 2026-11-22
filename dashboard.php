@@ -145,7 +145,7 @@ function getBankSampahTerdekat(int $userId): ?array
            FROM bank_sampah b
            JOIN users u ON u.id = ?
           ORDER BY COALESCE(b.kode_pos = u.kode_pos, 0) DESC,
-                   COALESCE(b.kota_id = u.kota, 0) DESC,
+                   COALESCE(b.kota = u.kota, 0) DESC,
                    b.id ASC
           LIMIT 1",
         'i', [$userId]
