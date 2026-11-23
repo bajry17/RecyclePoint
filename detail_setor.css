@@ -32,7 +32,6 @@
 .ds-total small { margin-left: 3px; font-size: 11px; font-weight: 600; }
 .ds-total--orange { color: #FF7B2B; }
 
-/* ===== Kartu Informasi & Rincian ===== */
 .ds-content { display: grid; grid-template-columns: 1.24fr 1fr; gap: 27px; align-items: start; }
 .ds-card { min-width: 0; border-radius: 12px; background: #fff; box-shadow: 0 3px 4px rgba(0, 0, 0, .2); }
 .ds-card h2 { margin: 0 0 10px; color: #111; font-size: 15px; font-weight: 600; line-height: 20px; }
