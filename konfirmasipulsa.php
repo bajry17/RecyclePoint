@@ -5,7 +5,6 @@ $src     = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
 $nomor   = (string) ($src['nomor'] ?? '');
 $nominal = (int) ($src['nominal'] ?? 0);
 
-// ---- harga poin dari database; data tidak valid / dibuka langsung -> tampilan contoh dari database ----
 $produk   = produk_nominal($conn, 'pulsa', $nominal);
 $nomor_ok = (bool) preg_match('/^08\d{8,11}$/', $nomor);
 $langsung = !($produk && $nomor_ok);
@@ -22,7 +21,6 @@ if (!$nomor_ok) {
 }
 $nominal = (int) $produk['nominal'];
 
-// ---- operator dari tabel operator_prefix ----
 $op_nama  = operator_dari_nomor($conn, $nomor);
 $operator = $op_nama ?? 'Operator tidak dikenali';
 $op_key   = $op_nama !== null ? strtolower($op_nama) : '';

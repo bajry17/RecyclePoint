@@ -4,7 +4,6 @@ require_once __DIR__ . '/tukar_helper.php';
 $poin_user   = poin_user($conn, $user_id);
 $flash_error = ambil_flash_error();
 
-// ---- nominal dan harga poin dari produk_poin (tipe = pulsa) ----
 $nominal_list = daftar_nominal($conn, 'pulsa');
 $peta_operator = peta_operator($conn);
 ?>
@@ -91,7 +90,6 @@ $peta_operator = peta_operator($conn);
 <script>
 const POIN_USER = <?= (int)$poin_user ?>;
 
-// awalan nomor -> nama operator, dari tabel operator_prefix
 const PREFIX_OPERATOR = <?= json_encode($peta_operator, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
 const opts = document.querySelectorAll('.tp-opt');

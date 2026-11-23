@@ -4,7 +4,6 @@ require_once __DIR__ . '/tukar_helper.php';
 $src = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
 $id  = (int) ($src['id'] ?? 0);
 
-// ---- produk dari database; id tidak valid / dibuka langsung -> produk pertama sebagai contoh ----
 $p = produk_daur_ulang($conn, $id);
 $langsung = !$p;
 if ($langsung) {
@@ -17,7 +16,6 @@ if (!$p) {
 }
 $produk = ['nama' => $p['nama'], 'gambar' => foto_aman($p['foto'])];
 
-// ---- data user dari database ----
 $user      = data_user($conn, $user_id);
 $no_hp     = (string) ($user['no_telepon'] ?? '');
 $alamat    = alamat_lengkap($user);

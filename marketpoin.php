@@ -5,7 +5,6 @@ $poin_user   = poin_user($conn, $user_id);
 $flash       = ambil_flash();
 $flash_error = ambil_flash_error();
 
-// ---- produk daur ulang dari database ----
 $produk_list = [];
 $st = $conn->prepare("SELECT id, nama, harga_poin, kategori, foto
                         FROM produk_poin

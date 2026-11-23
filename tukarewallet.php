@@ -4,7 +4,6 @@ require_once __DIR__ . '/tukar_helper.php';
 $poin_user   = poin_user($conn, $user_id);
 $flash_error = ambil_flash_error();
 
-// ---- nominal dan harga poin dari produk_poin (tipe = ewallet) ----
 $nominal_list = daftar_nominal($conn, 'ewallet');
 ?>
 <!DOCTYPE html>

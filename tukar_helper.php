@@ -1,9 +1,7 @@
 <?php
 /**
- * tukar_helper.php
  * Dipakai bersama oleh: marketpoin, tukarpulsa, tukarewallet,
  * konfirmasidaurulang, konfirmasipulsa, konfirmasiewallet.
- * Letakkan di folder yang sama dengan koneksi.php.
  */
 declare(strict_types=1);
 

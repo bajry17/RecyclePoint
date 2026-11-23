@@ -6,7 +6,6 @@ $app     = (string) ($src['app'] ?? '');
 $nomor   = (string) ($src['nomor'] ?? '');
 $nominal = (int) ($src['nominal'] ?? 0);
 
-// ---- harga poin dari database; data tidak valid / dibuka langsung -> tampilan contoh dari database ----
 $app_ok   = in_array($app, EWALLET_APP, true);
 $nomor_ok = (bool) preg_match('/^08\d{8,11}$/', $nomor);
 $produk   = produk_nominal($conn, 'ewallet', $nominal);
@@ -26,7 +25,7 @@ if (!$nomor_ok) {
     $nomor = (string) (data_user($conn, $user_id)['no_telepon'] ?? '');
 }
 $nominal = (int) $produk['nominal'];
-$gambar  = 'images/' . strtolower($app) . '.svg'; // gopay.svg atau dana.svg
+$gambar  = 'images/' . strtolower($app) . '.svg';
 
 $poin_user    = poin_user($conn, $user_id);
 $total_poin   = (int) $produk['harga_poin'];
