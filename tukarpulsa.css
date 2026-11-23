@@ -65,8 +65,8 @@ body { margin: 0; background: #f5fbe6; font-family: 'Plus Jakarta Sans', sans-se
 .tp-poin-divider { width: 2.5px; height: 98px; background: #fff; }
 .tp-poin-hist { padding-left: 12px; font-weight: 600; font-size: 24px; }
 .tp-poin .tp-i-chev { position: absolute; left: 375px; top: 50%; transform: translateY(-50%); }
-@media (max-width: 1360px) {
-  .tp-poin { position: static; margin: 0 0 24px auto; }
+@media (max-width: 1180px) {
+  .tp-poin { position: relative; top: auto; right: auto; margin: 0 0 24px auto; }
 }
 
 /* form top-up */
