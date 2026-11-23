@@ -47,7 +47,7 @@ body { margin: 0; background: #f5fbe6; font-family: 'Plus Jakarta Sans', sans-se
 .pp-item img { flex: none; width: 154px; height: 140px; padding: 12px; object-fit: contain; background: #fff; border: .7px solid #999; border-radius: 10.5px; }
 .pp-item h2 { margin: 0 0 7px; font: 600 32px/48px 'Poppins', sans-serif; }
 .pp-sub { font: 600 20px/30px 'Poppins', sans-serif; }
-.pp-info { margin-top: 9px; font: 400 20px/30px 'Poppins', sans-serif; }
+.pp-info { margin-top: 9px; font: 400 20px/30px 'Poppins', sans-serif; white-space: nowrap; }
 
 .pp-pay { height: 239px; margin-top: 66px; padding: 15px 26px 0 24px; }
 .pp-pay h3 { margin: 0; font: 600 28px/42px 'Poppins', sans-serif; }
