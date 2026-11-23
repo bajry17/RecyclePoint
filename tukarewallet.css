@@ -78,15 +78,15 @@ body { margin: 0; background: #f5fbe6; font-family: 'Plus Jakarta Sans', sans-se
 .te-wrap h2 { margin: 0 0 0 3px; font: 700 36px/1.25 'Plus Jakarta Sans', sans-serif; }
 
 /* pilih aplikasi e-wallet (logo dan nama) */
-.te-app { width: fit-content; min-width: 237px; height: 69px; margin: 13px 0 0 3px; padding: 10px 16px 0;
-  background: #235f5f; border-radius: 15px; color: #fff; font-family: 'Poppins', sans-serif; }
+.te-app { width: fit-content; min-width: 237px; height: fit-content; min-height: 69px; margin: 13px 0 0 3px; padding: 10px 16px 10px;
+  background: #84A620; border-radius: 15px; color: #fff; font-family: 'Poppins', sans-serif; }
 .te-app p { margin: 0; font-size: 15px; line-height: 22px; }
 .te-app-opts { display: flex; gap: 14px; }
 .te-radio { position: relative; display: flex; align-items: flex-start; gap: 4px; cursor: pointer;
   font: 600 20px/30px 'Poppins', sans-serif; }
 .te-radio input { position: absolute; opacity: 0; width: 0; height: 0; }
 .te-dot { flex: none; width: 20px; height: 20px; margin-top: 5px; border-radius: 50%; background: #fff; }
-.te-radio img { display: block; flex: none; height: 22px; width: auto; max-width: 48px; margin-top: 4px; }
+.te-radio img { display: block; flex: none; height: 30px; width: auto; max-width: none; margin-top: 4px; }
 .te-radio input:checked + .te-dot { box-shadow: inset 0 0 0 5px #fe7f2d; }
 .te-radio input:focus-visible + .te-dot { outline: 2px solid #fff; outline-offset: 2px; }
 
